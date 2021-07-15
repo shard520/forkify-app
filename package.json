@@ -1,0 +1,19 @@
+{
+  "name": "forkify-app",
+  "version": "1.0.0",
+  "description": "Recipe Library",
+  "scripts": {
+    "start": "parcel serve index.html",
+    "build": "parcel build index.html"
+  },
+  "author": "shard520",
+  "license": "ISC",
+  "devDependencies": {
+    "@parcel/babel-plugin-transform-runtime": "^2.0.0-nightly.1823",
+    "@parcel/babel-preset-env": "^2.0.0-alpha.3",
+    "@parcel/transformer-babel": "^2.0.0-nightly.771",
+    "@parcel/transformer-image": "^2.0.0-nightly.2393",
+    "@parcel/transformer-sass": "^2.0.0-nightly.771",
+    "parcel": "^2.0.0-beta.3.1"
+  }
+}
