@@ -389,14 +389,7 @@ var _model = require("./model");
 var _recipeView = require("./views/recipeView");
 var _recipeViewDefault = parcelHelpers.interopDefault(_recipeView);
 var _stable = require("core-js/stable");
-var _runtime = require("regenerator-runtime/runtime");
-var timeout = function timeout1(s) {
-    return new Promise(function(_, reject) {
-        setTimeout(function() {
-            reject(new Error("Request took too long! Timeout after ".concat(s, " second")));
-        }, s * 1000);
-    });
-}; // https://forkify-api.herokuapp.com/v2
+var _runtime = require("regenerator-runtime/runtime"); // https://forkify-api.herokuapp.com/v2
 ///////////////////////////////////////
 var controlRecipes = /*#__PURE__*/ function() {
     var _ref = _asyncToGeneratorDefault.default(/*#__PURE__*/ _regeneratorDefault.default.mark(function _callee() {
@@ -1067,31 +1060,23 @@ var _asyncToGenerator = require("@babel/runtime/helpers/asyncToGenerator");
 var _asyncToGeneratorDefault = parcelHelpers.interopDefault(_asyncToGenerator);
 var _regenerator = require("@babel/runtime/regenerator");
 var _regeneratorDefault = parcelHelpers.interopDefault(_regenerator);
+var _config = require("./config");
+var _helpers = require("./helpers");
 var state = {
     recipe: {
     }
 };
 var loadRecipe = /*#__PURE__*/ function() {
     var _ref = _asyncToGeneratorDefault.default(/*#__PURE__*/ _regeneratorDefault.default.mark(function _callee(id) {
-        var res, data, recipe;
+        var data, recipe;
         return _regeneratorDefault.default.wrap(function _callee$(_context) {
             while(true)switch(_context.prev = _context.next){
                 case 0:
                     _context.prev = 0;
                     _context.next = 3;
-                    return fetch("https://forkify-api.herokuapp.com/api/v2/recipes/".concat(id));
+                    return _helpers.getJSON("".concat(_config.API_URL).concat(id));
                 case 3:
-                    res = _context.sent;
-                    _context.next = 6;
-                    return res.json();
-                case 6:
                     data = _context.sent;
-                    if (res.ok) {
-                        _context.next = 9;
-                        break;
-                    }
-                    throw new Error("".concat(data.message, " (").concat(res.status, ")"));
-                case 9:
                     recipe = data.data.recipe;
                     state.recipe = {
                         id: recipe.id,
@@ -1104,20 +1089,20 @@ var loadRecipe = /*#__PURE__*/ function() {
                         ingredients: recipe.ingredients
                     };
                     console.log(state.recipe);
-                    _context.next = 17;
+                    _context.next = 12;
                     break;
-                case 14:
-                    _context.prev = 14;
+                case 9:
+                    _context.prev = 9;
                     _context.t0 = _context["catch"](0);
-                    alert(_context.t0);
-                case 17:
+                    console.error("\uD83D\uDCA5\uD83D\uDCA5 ".concat(_context.t0));
+                case 12:
                 case "end":
                     return _context.stop();
             }
         }, _callee, null, [
             [
                 0,
-                14
+                9
             ]
         ]);
     }));
@@ -1126,7 +1111,7 @@ var loadRecipe = /*#__PURE__*/ function() {
     };
 }();
 
-},{"@babel/runtime/helpers/asyncToGenerator":"5j50L","@babel/runtime/regenerator":"1L3WO","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}],"JacNc":[function(require,module,exports) {
+},{"@babel/runtime/helpers/asyncToGenerator":"5j50L","@babel/runtime/regenerator":"1L3WO","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","./config":"beA2m","./helpers":"9l3Yy"}],"JacNc":[function(require,module,exports) {
 exports.interopDefault = function(a) {
     return a && a.__esModule ? a : {
         default: a
@@ -1158,7 +1143,79 @@ exports.export = function(dest, destName, get) {
     });
 };
 
-},{}],"eIyVg":[function(require,module,exports) {
+},{}],"beA2m":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "API_URL", ()=>API_URL
+);
+parcelHelpers.export(exports, "TIMEOUT_SEC", ()=>TIMEOUT_SEC
+);
+var API_URL = 'https://forkify-api.herokuapp.com/api/v2/recipes/';
+var TIMEOUT_SEC = 10;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}],"9l3Yy":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "getJSON", ()=>getJSON
+);
+var _asyncToGenerator = require("@babel/runtime/helpers/asyncToGenerator");
+var _asyncToGeneratorDefault = parcelHelpers.interopDefault(_asyncToGenerator);
+var _regenerator = require("@babel/runtime/regenerator");
+var _regeneratorDefault = parcelHelpers.interopDefault(_regenerator);
+var _config = require("./config");
+var timeout = function timeout1(s) {
+    return new Promise(function(_, reject) {
+        setTimeout(function() {
+            reject(new Error("Request took too long! Timeout after ".concat(s, " second")));
+        }, s * 1000);
+    });
+};
+var getJSON = /*#__PURE__*/ function() {
+    var _ref = _asyncToGeneratorDefault.default(/*#__PURE__*/ _regeneratorDefault.default.mark(function _callee(url) {
+        var res, data;
+        return _regeneratorDefault.default.wrap(function _callee$(_context) {
+            while(true)switch(_context.prev = _context.next){
+                case 0:
+                    _context.prev = 0;
+                    _context.next = 3;
+                    return Promise.race([
+                        fetch(url),
+                        timeout(_config.TIMEOUT_SEC)
+                    ]);
+                case 3:
+                    res = _context.sent;
+                    _context.next = 6;
+                    return res.json();
+                case 6:
+                    data = _context.sent;
+                    if (res.ok) {
+                        _context.next = 9;
+                        break;
+                    }
+                    throw new Error("".concat(data.message, " (").concat(res.status, ")"));
+                case 9:
+                    return _context.abrupt("return", data);
+                case 12:
+                    _context.prev = 12;
+                    _context.t0 = _context["catch"](0);
+                    throw _context.t0;
+                case 15:
+                case "end":
+                    return _context.stop();
+            }
+        }, _callee, null, [
+            [
+                0,
+                12
+            ]
+        ]);
+    }));
+    return function getJSON1(_x) {
+        return _ref.apply(this, arguments);
+    };
+}();
+
+},{"@babel/runtime/helpers/asyncToGenerator":"5j50L","@babel/runtime/regenerator":"1L3WO","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","./config":"beA2m"}],"eIyVg":[function(require,module,exports) {
 require('../modules/es.symbol');
 require('../modules/es.symbol.description');
 require('../modules/es.symbol.async-iterator');
