@@ -411,13 +411,14 @@ var controlRecipes = /*#__PURE__*/ function() {
                 case 7:
                     // 2) Rendering recipe
                     _recipeViewDefault.default.render(_model.state.recipe);
-                    _context.next = 13;
+                    _context.next = 14;
                     break;
                 case 10:
                     _context.prev = 10;
                     _context.t0 = _context["catch"](4);
-                    alert(_context.t0);
-                case 13:
+                    console.error("\uD83D\uDCA5\uD83D\uDCA5 ".concat(_context.t0));
+                    _recipeViewDefault.default.renderError();
+                case 14:
                 case "end":
                     return _context.stop();
             }
@@ -1054,6 +1055,8 @@ parcelHelpers.export(exports, "state", ()=>state
 );
 parcelHelpers.export(exports, "loadRecipe", ()=>loadRecipe
 );
+parcelHelpers.export(exports, "loadSearchResults", ()=>loadSearchResults
+);
 var _asyncToGenerator = require("@babel/runtime/helpers/asyncToGenerator");
 var _asyncToGeneratorDefault = parcelHelpers.interopDefault(_asyncToGenerator);
 var _regenerator = require("@babel/runtime/regenerator");
@@ -1087,13 +1090,14 @@ var loadRecipe = /*#__PURE__*/ function() {
                         ingredients: recipe.ingredients
                     };
                     console.log(state.recipe);
-                    _context.next = 12;
+                    _context.next = 13;
                     break;
                 case 9:
                     _context.prev = 9;
                     _context.t0 = _context["catch"](0);
                     console.error("\uD83D\uDCA5\uD83D\uDCA5 ".concat(_context.t0));
-                case 12:
+                    throw _context.t0;
+                case 13:
                 case "end":
                     return _context.stop();
             }
@@ -1106,6 +1110,34 @@ var loadRecipe = /*#__PURE__*/ function() {
     }));
     return function loadRecipe1(_x) {
         return _ref.apply(this, arguments);
+    };
+}();
+var loadSearchResults = /*#__PURE__*/ function() {
+    var _ref2 = _asyncToGeneratorDefault.default(/*#__PURE__*/ _regeneratorDefault.default.mark(function _callee2(query) {
+        return _regeneratorDefault.default.wrap(function _callee2$(_context2) {
+            while(true)switch(_context2.prev = _context2.next){
+                case 0:
+                    _context2.prev = 0;
+                    _context2.next = 7;
+                    break;
+                case 3:
+                    _context2.prev = 3;
+                    _context2.t0 = _context2["catch"](0);
+                    console.error("\uD83D\uDCA5\uD83D\uDCA5 ".concat(_context2.t0));
+                    throw _context2.t0;
+                case 7:
+                case "end":
+                    return _context2.stop();
+            }
+        }, _callee2, null, [
+            [
+                0,
+                3
+            ]
+        ]);
+    }));
+    return function loadSearchResults1(_x2) {
+        return _ref2.apply(this, arguments);
     };
 }();
 
@@ -12716,10 +12748,10 @@ var _classCallCheck = require("@babel/runtime/helpers/classCallCheck");
 var _classCallCheckDefault = parcelHelpers.interopDefault(_classCallCheck);
 var _createClass = require("@babel/runtime/helpers/createClass");
 var _createClassDefault = parcelHelpers.interopDefault(_createClass);
-var _classPrivateFieldGet = require("@babel/runtime/helpers/classPrivateFieldGet");
-var _classPrivateFieldGetDefault = parcelHelpers.interopDefault(_classPrivateFieldGet);
 var _classPrivateFieldSet = require("@babel/runtime/helpers/classPrivateFieldSet");
 var _classPrivateFieldSetDefault = parcelHelpers.interopDefault(_classPrivateFieldSet);
+var _classPrivateFieldGet = require("@babel/runtime/helpers/classPrivateFieldGet");
+var _classPrivateFieldGetDefault = parcelHelpers.interopDefault(_classPrivateFieldGet);
 var _iconsSvg = require("url:../../img/icons.svg");
 var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
 var _fractionJs = require("fraction.js");
@@ -12730,7 +12762,9 @@ function _classPrivateMethodGet(receiver, privateSet, fn) {
 }
 var _parentElement = /*#__PURE__*/ new WeakMap();
 var _data = /*#__PURE__*/ new WeakMap();
-var _clear = /*#__PURE__*/ new WeakSet();
+var _errorMessage = /*#__PURE__*/ new WeakMap();
+var _message = /*#__PURE__*/ new WeakMap();
+var _clearAndRender = /*#__PURE__*/ new WeakSet();
 var _generateMarkup = /*#__PURE__*/ new WeakSet();
 var _generateMarkupIngredient = /*#__PURE__*/ new WeakSet();
 var RecipeView = /*#__PURE__*/ function() {
@@ -12738,7 +12772,7 @@ var RecipeView = /*#__PURE__*/ function() {
         _classCallCheckDefault.default(this, RecipeView1);
         _generateMarkupIngredient.add(this);
         _generateMarkup.add(this);
-        _clear.add(this);
+        _clearAndRender.add(this);
         _parentElement.set(this, {
             writable: true,
             value: document.querySelector('.recipe')
@@ -12747,6 +12781,14 @@ var RecipeView = /*#__PURE__*/ function() {
             writable: true,
             value: void 0
         });
+        _errorMessage.set(this, {
+            writable: true,
+            value: 'We could not find that recipe. Please try another one!'
+        });
+        _message.set(this, {
+            writable: true,
+            value: ''
+        });
     }
     _createClassDefault.default(RecipeView1, [
         {
@@ -12754,16 +12796,30 @@ var RecipeView = /*#__PURE__*/ function() {
             value: function render(data) {
                 _classPrivateFieldSetDefault.default(this, _data, data);
                 var markup = _classPrivateMethodGet(this, _generateMarkup, _generateMarkup2).call(this);
-                _classPrivateMethodGet(this, _clear, _clear2).call(this);
-                _classPrivateFieldGetDefault.default(this, _parentElement).insertAdjacentHTML('afterbegin', markup);
+                _classPrivateMethodGet(this, _clearAndRender, _clearAndRender2).call(this, markup);
             }
         },
         {
             key: "renderSpinner",
             value: function renderSpinner() {
                 var markup = "\n\t  <div class=\"spinner\">\n\t\t<svg>\n\t\t  <use href=\"".concat(_iconsSvgDefault.default, "#icon-loader\"></use>\n\t\t</svg>\n\t  </div>\n\t");
-                _classPrivateMethodGet(this, _clear, _clear2).call(this);
-                _classPrivateFieldGetDefault.default(this, _parentElement).insertAdjacentHTML('afterbegin', markup);
+                _classPrivateMethodGet(this, _clearAndRender, _clearAndRender2).call(this, markup);
+            }
+        },
+        {
+            key: "renderError",
+            value: function renderError() {
+                var message = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _classPrivateFieldGetDefault.default(this, _errorMessage);
+                var markup = "\n\t\t\t<div class=\"error\">\n\t\t\t\t<div>\n\t\t\t\t\t<svg>\n\t\t\t\t\t\t<use href=\"".concat(_iconsSvgDefault.default, "#icon-alert-triangle\"></use>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<p>").concat(message, "</p>\n\t\t\t</div>\n\t  ");
+                _classPrivateMethodGet(this, _clearAndRender, _clearAndRender2).call(this, markup);
+            }
+        },
+        {
+            key: "renderMessage",
+            value: function renderMessage() {
+                var message = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _classPrivateFieldGetDefault.default(this, _message);
+                var markup = "\n\t\t\t<div class=\"message\">\n\t\t\t\t<div>\n\t\t\t\t\t<svg>\n\t\t\t\t\t\t<use href=\"".concat(_iconsSvgDefault.default, "#icon-smile\"></use>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<p>").concat(message, "</p>\n\t\t\t</div>\n\t  ");
+                _classPrivateMethodGet(this, _clearAndRender, _clearAndRender2).call(this, markup);
             }
         },
         {
@@ -12780,8 +12836,9 @@ var RecipeView = /*#__PURE__*/ function() {
     ]);
     return RecipeView1;
 }();
-function _clear2() {
+function _clearAndRender2(markup) {
     _classPrivateFieldGetDefault.default(this, _parentElement).innerHTML = '';
+    _classPrivateFieldGetDefault.default(this, _parentElement).insertAdjacentHTML('afterbegin', markup);
 }
 function _generateMarkup2() {
     return "\n\t\t<figure class=\"recipe__fig\">\n\t\t\t<img src=\"".concat(_classPrivateFieldGetDefault.default(this, _data).image, "\" alt=\"").concat(_classPrivateFieldGetDefault.default(this, _data).title, "\" class=\"recipe__img\" crossorigin/>\n\t\t\t<h1 class=\"recipe__title\">\n\t\t\t\t<span>").concat(_classPrivateFieldGetDefault.default(this, _data).title, "</span>\n\t\t\t</h1>\n\t\t</figure>\n\n\t\t<div class=\"recipe__details\">\n\t\t\t<div class=\"recipe__info\">\n\t\t\t\t<svg class=\"recipe__info-icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-clock\"></use>\n\t\t\t\t</svg>\n\t\t\t\t<span class=\"recipe__info-data recipe__info-data--minutes\">").concat(_classPrivateFieldGetDefault.default(this, _data).cookingTime, "</span>\n\t\t\t\t<span class=\"recipe__info-text\">minutes</span>\n\t\t\t</div>\n\t\t\t<div class=\"recipe__info\">\n\t\t\t\t<svg class=\"recipe__info-icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-users\"></use>\n\t\t\t\t</svg>\n\t\t\t\t<span class=\"recipe__info-data recipe__info-data--people\">").concat(_classPrivateFieldGetDefault.default(this, _data).servings, "</span>\n\t\t\t\t<span class=\"recipe__info-text\">servings</span>\n\n\t\t\t\t<div class=\"recipe__info-buttons\">\n\t\t\t\t\t<button class=\"btn--tiny btn--increase-servings\">\n\t\t\t\t\t\t<svg>\n\t\t\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-minus-circle\"></use>\n\t\t\t\t\t\t</svg>\n\t\t\t\t\t</button>\n\t\t\t\t\t<button class=\"btn--tiny btn--increase-servings\">\n\t\t\t\t\t\t<svg>\n\t\t\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-plus-circle\"></use>\n\t\t\t\t\t\t</svg>\n\t\t\t\t\t</button>\n\t\t\t\t</div>\n\t\t\t</div>\n\n\t\t\t<div class=\"recipe__user-generated\">\n\t\t\t\t<svg>\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-user\"></use>\n\t\t\t\t</svg>\n\t\t\t</div>\n\t\t\t<button class=\"btn--round\">\n\t\t\t\t<svg class=\"\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-bookmark-fill\"></use>\n\t\t\t\t</svg>\n\t\t\t</button>\n\t\t</div>\n\n\t\t<div class=\"recipe__ingredients\">\n\t\t\t<h2 class=\"heading--2\">Recipe ingredients</h2>\n\t\t\t<ul class=\"recipe__ingredient-list\">\n\t\t\t\t").concat(_classPrivateFieldGetDefault.default(this, _data).ingredients.map(_classPrivateMethodGet(this, _generateMarkupIngredient, _generateMarkupIngredient2)).join(' '), "\n\t\t\t</ul>\n\t\t</div>\n\t\n\t\t<div class=\"recipe__directions\">\n\t\t\t<h2 class=\"heading--2\">How to cook it</h2>\n\t\t\t<p class=\"recipe__directions-text\">\n\t\t\t\tThis recipe was carefully designed and tested by\n\t\t\t\t<span class=\"recipe__publisher\">").concat(_classPrivateFieldGetDefault.default(this, _data).publisher, "</span>. Please check out\n\t\t\t\tdirections at their website.\n\t\t\t</p>\n\t\t\t<a\n\t\t\t\tclass=\"btn--small recipe__btn\"\n\t\t\t\thref=\"").concat(_classPrivateFieldGetDefault.default(this, _data).sourceUrl, "\"\n\t\t\t\ttarget=\"_blank\"\n\t\t\t>\n\t\t\t\t<span>Directions</span>\n\t\t\t\t<svg class=\"search__icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-arrow-right\"></use>\n\t\t\t\t</svg>\n\t\t\t</a>\n\t\t</div>\n\t");
