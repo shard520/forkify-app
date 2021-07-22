@@ -432,12 +432,10 @@ var controlRecipes = /*#__PURE__*/ function() {
         return _ref.apply(this, arguments);
     };
 }();
-[
-    'hashchange',
-    'load'
-].forEach(function(ev) {
-    return window.addEventListener(ev, controlRecipes);
-});
+var init = function init1() {
+    _recipeViewDefault.default.addHandlerRender(controlRecipes);
+};
+init();
 
 },{"@babel/runtime/helpers/asyncToGenerator":"5j50L","@babel/runtime/regenerator":"1L3WO","./model":"6Yfb5","core-js/stable":"eIyVg","regenerator-runtime/runtime":"cH8Iq","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","./views/recipeView":"9q0mt"}],"5j50L":[function(require,module,exports) {
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
@@ -12766,6 +12764,17 @@ var RecipeView = /*#__PURE__*/ function() {
                 var markup = "\n\t  <div class=\"spinner\">\n\t\t<svg>\n\t\t  <use href=\"".concat(_iconsSvgDefault.default, "#icon-loader\"></use>\n\t\t</svg>\n\t  </div>\n\t");
                 _classPrivateMethodGet(this, _clear, _clear2).call(this);
                 _classPrivateFieldGetDefault.default(this, _parentElement).insertAdjacentHTML('afterbegin', markup);
+            }
+        },
+        {
+            key: "addHandlerRender",
+            value: function addHandlerRender(handler) {
+                [
+                    'hashchange',
+                    'load'
+                ].forEach(function(ev) {
+                    return window.addEventListener(ev, handler);
+                });
             }
         }
     ]);
