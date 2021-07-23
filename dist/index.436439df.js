@@ -388,9 +388,13 @@ var _regeneratorDefault = parcelHelpers.interopDefault(_regenerator);
 var _model = require("./model");
 var _recipeView = require("./views/recipeView");
 var _recipeViewDefault = parcelHelpers.interopDefault(_recipeView);
+var _searchView = require("./views/searchView");
+var _searchViewDefault = parcelHelpers.interopDefault(_searchView);
+var _resultsView = require("./views/resultsView");
+var _resultsViewDefault = parcelHelpers.interopDefault(_resultsView);
 var _stable = require("core-js/stable");
-var _runtime = require("regenerator-runtime/runtime"); // https://forkify-api.herokuapp.com/v2
-///////////////////////////////////////
+var _runtime = require("regenerator-runtime/runtime");
+if (module.hot) module.hot.accept();
 var controlRecipes = /*#__PURE__*/ function() {
     var _ref = _asyncToGeneratorDefault.default(/*#__PURE__*/ _regeneratorDefault.default.mark(function _callee() {
         var id;
@@ -433,12 +437,54 @@ var controlRecipes = /*#__PURE__*/ function() {
         return _ref.apply(this, arguments);
     };
 }();
+var controlSearchResults = /*#__PURE__*/ function() {
+    var _ref2 = _asyncToGeneratorDefault.default(/*#__PURE__*/ _regeneratorDefault.default.mark(function _callee2() {
+        var query;
+        return _regeneratorDefault.default.wrap(function _callee2$(_context2) {
+            while(true)switch(_context2.prev = _context2.next){
+                case 0:
+                    _context2.prev = 0;
+                    _resultsViewDefault.default.renderSpinner(); // 1) Get search query
+                    query = _searchViewDefault.default.getQuery();
+                    if (query) {
+                        _context2.next = 5;
+                        break;
+                    }
+                    return _context2.abrupt("return");
+                case 5:
+                    _context2.next = 7;
+                    return _model.loadSearchResults(query);
+                case 7:
+                    // 3} Render search results
+                    _resultsViewDefault.default.render(_model.state.search.results);
+                    _context2.next = 13;
+                    break;
+                case 10:
+                    _context2.prev = 10;
+                    _context2.t0 = _context2["catch"](0);
+                    console.log(_context2.t0);
+                case 13:
+                case "end":
+                    return _context2.stop();
+            }
+        }, _callee2, null, [
+            [
+                0,
+                10
+            ]
+        ]);
+    }));
+    return function controlSearchResults1() {
+        return _ref2.apply(this, arguments);
+    };
+}();
 var init = function init1() {
     _recipeViewDefault.default.addHandlerRender(controlRecipes);
+    _searchViewDefault.default.addHandlerSearch(controlSearchResults);
 };
 init();
 
-},{"@babel/runtime/helpers/asyncToGenerator":"5j50L","@babel/runtime/regenerator":"1L3WO","./model":"6Yfb5","core-js/stable":"eIyVg","regenerator-runtime/runtime":"cH8Iq","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","./views/recipeView":"9q0mt"}],"5j50L":[function(require,module,exports) {
+},{"@babel/runtime/helpers/asyncToGenerator":"5j50L","@babel/runtime/regenerator":"1L3WO","./model":"6Yfb5","core-js/stable":"eIyVg","regenerator-runtime/runtime":"cH8Iq","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","./views/recipeView":"9q0mt","./views/searchView":"51HTZ","./views/resultsView":"a6WEO"}],"5j50L":[function(require,module,exports) {
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
     try {
         var info = gen[key](arg);
@@ -1065,6 +1111,10 @@ var _config = require("./config");
 var _helpers = require("./helpers");
 var state = {
     recipe: {
+    },
+    search: {
+        query: '',
+        results: []
     }
 };
 var loadRecipe = /*#__PURE__*/ function() {
@@ -1089,22 +1139,21 @@ var loadRecipe = /*#__PURE__*/ function() {
                         cookingTime: recipe.cooking_time,
                         ingredients: recipe.ingredients
                     };
-                    console.log(state.recipe);
-                    _context.next = 13;
+                    _context.next = 12;
                     break;
-                case 9:
-                    _context.prev = 9;
+                case 8:
+                    _context.prev = 8;
                     _context.t0 = _context["catch"](0);
                     console.error("\uD83D\uDCA5\uD83D\uDCA5 ".concat(_context.t0));
                     throw _context.t0;
-                case 13:
+                case 12:
                 case "end":
                     return _context.stop();
             }
         }, _callee, null, [
             [
                 0,
-                9
+                8
             ]
         ]);
     }));
@@ -1114,25 +1163,39 @@ var loadRecipe = /*#__PURE__*/ function() {
 }();
 var loadSearchResults = /*#__PURE__*/ function() {
     var _ref2 = _asyncToGeneratorDefault.default(/*#__PURE__*/ _regeneratorDefault.default.mark(function _callee2(query) {
+        var data;
         return _regeneratorDefault.default.wrap(function _callee2$(_context2) {
             while(true)switch(_context2.prev = _context2.next){
                 case 0:
                     _context2.prev = 0;
-                    _context2.next = 7;
+                    state.search.query = query;
+                    _context2.next = 4;
+                    return _helpers.getJSON("".concat(_config.API_URL, "?search=").concat(query));
+                case 4:
+                    data = _context2.sent;
+                    state.search.results = data.data.recipes.map(function(recipe) {
+                        return {
+                            id: recipe.id,
+                            title: recipe.title,
+                            publisher: recipe.publisher,
+                            image: recipe.image_url
+                        };
+                    });
+                    _context2.next = 12;
                     break;
-                case 3:
-                    _context2.prev = 3;
+                case 8:
+                    _context2.prev = 8;
                     _context2.t0 = _context2["catch"](0);
                     console.error("\uD83D\uDCA5\uD83D\uDCA5 ".concat(_context2.t0));
                     throw _context2.t0;
-                case 7:
+                case 12:
                 case "end":
                     return _context2.stop();
             }
         }, _callee2, null, [
             [
                 0,
-                3
+                8
             ]
         ]);
     }));
@@ -12748,80 +12811,61 @@ var _classCallCheck = require("@babel/runtime/helpers/classCallCheck");
 var _classCallCheckDefault = parcelHelpers.interopDefault(_classCallCheck);
 var _createClass = require("@babel/runtime/helpers/createClass");
 var _createClassDefault = parcelHelpers.interopDefault(_createClass);
-var _classPrivateFieldSet = require("@babel/runtime/helpers/classPrivateFieldSet");
-var _classPrivateFieldSetDefault = parcelHelpers.interopDefault(_classPrivateFieldSet);
-var _classPrivateFieldGet = require("@babel/runtime/helpers/classPrivateFieldGet");
-var _classPrivateFieldGetDefault = parcelHelpers.interopDefault(_classPrivateFieldGet);
+var _assertThisInitialized = require("@babel/runtime/helpers/assertThisInitialized");
+var _assertThisInitializedDefault = parcelHelpers.interopDefault(_assertThisInitialized);
+var _inherits = require("@babel/runtime/helpers/inherits");
+var _inheritsDefault = parcelHelpers.interopDefault(_inherits);
+var _possibleConstructorReturn = require("@babel/runtime/helpers/possibleConstructorReturn");
+var _possibleConstructorReturnDefault = parcelHelpers.interopDefault(_possibleConstructorReturn);
+var _getPrototypeOf = require("@babel/runtime/helpers/getPrototypeOf");
+var _getPrototypeOfDefault = parcelHelpers.interopDefault(_getPrototypeOf);
+var _defineProperty = require("@babel/runtime/helpers/defineProperty");
+var _definePropertyDefault = parcelHelpers.interopDefault(_defineProperty);
+var _view = require("./View");
+var _viewDefault = parcelHelpers.interopDefault(_view);
 var _iconsSvg = require("url:../../img/icons.svg");
 var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
 var _fractionJs = require("fraction.js");
 var _fractionJsDefault = parcelHelpers.interopDefault(_fractionJs);
-function _classPrivateMethodGet(receiver, privateSet, fn) {
-    if (!privateSet.has(receiver)) throw new TypeError("attempted to get private field on non-instance");
-    return fn;
+function _createSuper(Derived) {
+    var hasNativeReflectConstruct = _isNativeReflectConstruct();
+    return function _createSuperInternal() {
+        var Super = _getPrototypeOfDefault.default(Derived), result;
+        if (hasNativeReflectConstruct) {
+            var NewTarget = _getPrototypeOfDefault.default(this).constructor;
+            result = Reflect.construct(Super, arguments, NewTarget);
+        } else result = Super.apply(this, arguments);
+        return _possibleConstructorReturnDefault.default(this, result);
+    };
 }
-var _parentElement = /*#__PURE__*/ new WeakMap();
-var _data = /*#__PURE__*/ new WeakMap();
-var _errorMessage = /*#__PURE__*/ new WeakMap();
-var _message = /*#__PURE__*/ new WeakMap();
-var _clearAndRender = /*#__PURE__*/ new WeakSet();
-var _generateMarkup = /*#__PURE__*/ new WeakSet();
-var _generateMarkupIngredient = /*#__PURE__*/ new WeakSet();
-var RecipeView = /*#__PURE__*/ function() {
-    function RecipeView1() {
-        _classCallCheckDefault.default(this, RecipeView1);
-        _generateMarkupIngredient.add(this);
-        _generateMarkup.add(this);
-        _clearAndRender.add(this);
-        _parentElement.set(this, {
-            writable: true,
-            value: document.querySelector('.recipe')
-        });
-        _data.set(this, {
-            writable: true,
-            value: void 0
-        });
-        _errorMessage.set(this, {
-            writable: true,
-            value: 'We could not find that recipe. Please try another one!'
-        });
-        _message.set(this, {
-            writable: true,
-            value: ''
-        });
+function _isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+        Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+        }));
+        return true;
+    } catch (e) {
+        return false;
     }
-    _createClassDefault.default(RecipeView1, [
-        {
-            key: "render",
-            value: function render(data) {
-                _classPrivateFieldSetDefault.default(this, _data, data);
-                var markup = _classPrivateMethodGet(this, _generateMarkup, _generateMarkup2).call(this);
-                _classPrivateMethodGet(this, _clearAndRender, _clearAndRender2).call(this, markup);
-            }
-        },
-        {
-            key: "renderSpinner",
-            value: function renderSpinner() {
-                var markup = "\n\t  <div class=\"spinner\">\n\t\t<svg>\n\t\t  <use href=\"".concat(_iconsSvgDefault.default, "#icon-loader\"></use>\n\t\t</svg>\n\t  </div>\n\t");
-                _classPrivateMethodGet(this, _clearAndRender, _clearAndRender2).call(this, markup);
-            }
-        },
-        {
-            key: "renderError",
-            value: function renderError() {
-                var message = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _classPrivateFieldGetDefault.default(this, _errorMessage);
-                var markup = "\n\t\t\t<div class=\"error\">\n\t\t\t\t<div>\n\t\t\t\t\t<svg>\n\t\t\t\t\t\t<use href=\"".concat(_iconsSvgDefault.default, "#icon-alert-triangle\"></use>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<p>").concat(message, "</p>\n\t\t\t</div>\n\t  ");
-                _classPrivateMethodGet(this, _clearAndRender, _clearAndRender2).call(this, markup);
-            }
-        },
-        {
-            key: "renderMessage",
-            value: function renderMessage() {
-                var message = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _classPrivateFieldGetDefault.default(this, _message);
-                var markup = "\n\t\t\t<div class=\"message\">\n\t\t\t\t<div>\n\t\t\t\t\t<svg>\n\t\t\t\t\t\t<use href=\"".concat(_iconsSvgDefault.default, "#icon-smile\"></use>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<p>").concat(message, "</p>\n\t\t\t</div>\n\t  ");
-                _classPrivateMethodGet(this, _clearAndRender, _clearAndRender2).call(this, markup);
-            }
-        },
+}
+var RecipeView1 = /*#__PURE__*/ function(_View) {
+    _inheritsDefault.default(RecipeView2, _View);
+    var _super = _createSuper(RecipeView2);
+    function RecipeView2() {
+        var _this;
+        _classCallCheckDefault.default(this, RecipeView2);
+        for(var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++)args[_key] = arguments[_key];
+        _this = _super.call.apply(_super, [
+            this
+        ].concat(args));
+        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_parentElement", document.querySelector('.recipe'));
+        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_errorMessage", 'We could not find that recipe. Please try another one!');
+        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_message", '');
+        return _this;
+    }
+    _createClassDefault.default(RecipeView2, [
         {
             key: "addHandlerRender",
             value: function addHandlerRender(handler) {
@@ -12832,23 +12876,25 @@ var RecipeView = /*#__PURE__*/ function() {
                     return window.addEventListener(ev, handler);
                 });
             }
+        },
+        {
+            key: "_generateMarkup",
+            value: function _generateMarkup() {
+                return "\n\t\t<figure class=\"recipe__fig\">\n\t\t\t<img src=\"".concat(this._data.image, "\" alt=\"").concat(this._data.title, "\" class=\"recipe__img\" crossorigin/>\n\t\t\t<h1 class=\"recipe__title\">\n\t\t\t\t<span>").concat(this._data.title, "</span>\n\t\t\t</h1>\n\t\t</figure>\n\n\t\t<div class=\"recipe__details\">\n\t\t\t<div class=\"recipe__info\">\n\t\t\t\t<svg class=\"recipe__info-icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-clock\"></use>\n\t\t\t\t</svg>\n\t\t\t\t<span class=\"recipe__info-data recipe__info-data--minutes\">").concat(this._data.cookingTime, "</span>\n\t\t\t\t<span class=\"recipe__info-text\">minutes</span>\n\t\t\t</div>\n\t\t\t<div class=\"recipe__info\">\n\t\t\t\t<svg class=\"recipe__info-icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-users\"></use>\n\t\t\t\t</svg>\n\t\t\t\t<span class=\"recipe__info-data recipe__info-data--people\">").concat(this._data.servings, "</span>\n\t\t\t\t<span class=\"recipe__info-text\">servings</span>\n\n\t\t\t\t<div class=\"recipe__info-buttons\">\n\t\t\t\t\t<button class=\"btn--tiny btn--increase-servings\">\n\t\t\t\t\t\t<svg>\n\t\t\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-minus-circle\"></use>\n\t\t\t\t\t\t</svg>\n\t\t\t\t\t</button>\n\t\t\t\t\t<button class=\"btn--tiny btn--increase-servings\">\n\t\t\t\t\t\t<svg>\n\t\t\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-plus-circle\"></use>\n\t\t\t\t\t\t</svg>\n\t\t\t\t\t</button>\n\t\t\t\t</div>\n\t\t\t</div>\n\n\t\t\t<div class=\"recipe__user-generated\">\n\t\t\t\t\n\t\t\t</div>\n\t\t\t<button class=\"btn--round\">\n\t\t\t\t<svg class=\"\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-bookmark-fill\"></use>\n\t\t\t\t</svg>\n\t\t\t</button>\n\t\t</div>\n\n\t\t<div class=\"recipe__ingredients\">\n\t\t\t<h2 class=\"heading--2\">Recipe ingredients</h2>\n\t\t\t<ul class=\"recipe__ingredient-list\">\n\t\t\t\t").concat(this._data.ingredients.map(this._generateMarkupIngredient).join(' '), "\n\t\t\t</ul>\n\t\t</div>\n\t\n\t\t<div class=\"recipe__directions\">\n\t\t\t<h2 class=\"heading--2\">How to cook it</h2>\n\t\t\t<p class=\"recipe__directions-text\">\n\t\t\t\tThis recipe was carefully designed and tested by\n\t\t\t\t<span class=\"recipe__publisher\">").concat(this._data.publisher, "</span>. Please check out\n\t\t\t\tdirections at their website.\n\t\t\t</p>\n\t\t\t<a\n\t\t\t\tclass=\"btn--small recipe__btn\"\n\t\t\t\thref=\"").concat(this._data.sourceUrl, "\"\n\t\t\t\ttarget=\"_blank\"\n\t\t\t>\n\t\t\t\t<span>Directions</span>\n\t\t\t\t<svg class=\"search__icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-arrow-right\"></use>\n\t\t\t\t</svg>\n\t\t\t</a>\n\t\t</div>\n\t");
+            }
+        },
+        {
+            key: "_generateMarkupIngredient",
+            value: function _generateMarkupIngredient(ing) {
+                return "\n\t\t<li class=\"recipe__ingredient\">\n\t\t\t<svg class=\"recipe__icon\">\n\t\t\t\t<use href=\"".concat(_iconsSvgDefault.default, "#icon-check\"></use>\n\t\t\t</svg>\n\t\t\t").concat(ing.quantity ? "<div class=\"recipe__quantity\">".concat(new _fractionJsDefault.default(ing.quantity).simplify(0.01).toFraction(true), "</div>") : '', "\n\t\t\t<div class=\"recipe__description\">\n\t\t\t\t<span class=\"recipe__unit\">").concat(ing.unit, "</span>\n\t\t\t\t").concat(ing.description, "\n\t\t\t</div>\n\t\t</li>\n\t");
+            }
         }
     ]);
-    return RecipeView1;
-}();
-function _clearAndRender2(markup) {
-    _classPrivateFieldGetDefault.default(this, _parentElement).innerHTML = '';
-    _classPrivateFieldGetDefault.default(this, _parentElement).insertAdjacentHTML('afterbegin', markup);
-}
-function _generateMarkup2() {
-    return "\n\t\t<figure class=\"recipe__fig\">\n\t\t\t<img src=\"".concat(_classPrivateFieldGetDefault.default(this, _data).image, "\" alt=\"").concat(_classPrivateFieldGetDefault.default(this, _data).title, "\" class=\"recipe__img\" crossorigin/>\n\t\t\t<h1 class=\"recipe__title\">\n\t\t\t\t<span>").concat(_classPrivateFieldGetDefault.default(this, _data).title, "</span>\n\t\t\t</h1>\n\t\t</figure>\n\n\t\t<div class=\"recipe__details\">\n\t\t\t<div class=\"recipe__info\">\n\t\t\t\t<svg class=\"recipe__info-icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-clock\"></use>\n\t\t\t\t</svg>\n\t\t\t\t<span class=\"recipe__info-data recipe__info-data--minutes\">").concat(_classPrivateFieldGetDefault.default(this, _data).cookingTime, "</span>\n\t\t\t\t<span class=\"recipe__info-text\">minutes</span>\n\t\t\t</div>\n\t\t\t<div class=\"recipe__info\">\n\t\t\t\t<svg class=\"recipe__info-icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-users\"></use>\n\t\t\t\t</svg>\n\t\t\t\t<span class=\"recipe__info-data recipe__info-data--people\">").concat(_classPrivateFieldGetDefault.default(this, _data).servings, "</span>\n\t\t\t\t<span class=\"recipe__info-text\">servings</span>\n\n\t\t\t\t<div class=\"recipe__info-buttons\">\n\t\t\t\t\t<button class=\"btn--tiny btn--increase-servings\">\n\t\t\t\t\t\t<svg>\n\t\t\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-minus-circle\"></use>\n\t\t\t\t\t\t</svg>\n\t\t\t\t\t</button>\n\t\t\t\t\t<button class=\"btn--tiny btn--increase-servings\">\n\t\t\t\t\t\t<svg>\n\t\t\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-plus-circle\"></use>\n\t\t\t\t\t\t</svg>\n\t\t\t\t\t</button>\n\t\t\t\t</div>\n\t\t\t</div>\n\n\t\t\t<div class=\"recipe__user-generated\">\n\t\t\t\t<svg>\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-user\"></use>\n\t\t\t\t</svg>\n\t\t\t</div>\n\t\t\t<button class=\"btn--round\">\n\t\t\t\t<svg class=\"\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-bookmark-fill\"></use>\n\t\t\t\t</svg>\n\t\t\t</button>\n\t\t</div>\n\n\t\t<div class=\"recipe__ingredients\">\n\t\t\t<h2 class=\"heading--2\">Recipe ingredients</h2>\n\t\t\t<ul class=\"recipe__ingredient-list\">\n\t\t\t\t").concat(_classPrivateFieldGetDefault.default(this, _data).ingredients.map(_classPrivateMethodGet(this, _generateMarkupIngredient, _generateMarkupIngredient2)).join(' '), "\n\t\t\t</ul>\n\t\t</div>\n\t\n\t\t<div class=\"recipe__directions\">\n\t\t\t<h2 class=\"heading--2\">How to cook it</h2>\n\t\t\t<p class=\"recipe__directions-text\">\n\t\t\t\tThis recipe was carefully designed and tested by\n\t\t\t\t<span class=\"recipe__publisher\">").concat(_classPrivateFieldGetDefault.default(this, _data).publisher, "</span>. Please check out\n\t\t\t\tdirections at their website.\n\t\t\t</p>\n\t\t\t<a\n\t\t\t\tclass=\"btn--small recipe__btn\"\n\t\t\t\thref=\"").concat(_classPrivateFieldGetDefault.default(this, _data).sourceUrl, "\"\n\t\t\t\ttarget=\"_blank\"\n\t\t\t>\n\t\t\t\t<span>Directions</span>\n\t\t\t\t<svg class=\"search__icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-arrow-right\"></use>\n\t\t\t\t</svg>\n\t\t\t</a>\n\t\t</div>\n\t");
-}
-function _generateMarkupIngredient2(ing) {
-    return "\n\t\t<li class=\"recipe__ingredient\">\n\t\t\t<svg class=\"recipe__icon\">\n\t\t\t\t<use href=\"".concat(_iconsSvgDefault.default, "#icon-check\"></use>\n\t\t\t</svg>\n\t\t\t").concat(ing.quantity ? "<div class=\"recipe__quantity\">".concat(new _fractionJsDefault.default(ing.quantity).simplify(0.01).toFraction(true), "</div>") : '', "\n\t\t\t<div class=\"recipe__description\">\n\t\t\t\t<span class=\"recipe__unit\">").concat(ing.unit, "</span>\n\t\t\t\t").concat(ing.description, "\n\t\t\t</div>\n\t\t</li>\n\t");
-}
-exports.default = new RecipeView();
+    return RecipeView2;
+}(_viewDefault.default);
+exports.default = new RecipeView1();
 
-},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","@babel/runtime/helpers/createClass":"eFNXV","@babel/runtime/helpers/classPrivateFieldSet":"i4Xiw","@babel/runtime/helpers/classPrivateFieldGet":"kO1lU","url:../../img/icons.svg":"5XfTb","fraction.js":"1JPao"}],"fIqcI":[function(require,module,exports) {
+},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","@babel/runtime/helpers/createClass":"eFNXV","url:../../img/icons.svg":"5XfTb","fraction.js":"1JPao","./View":"8rtS4","@babel/runtime/helpers/assertThisInitialized":"k3YcS","@babel/runtime/helpers/inherits":"8mpJg","@babel/runtime/helpers/possibleConstructorReturn":"iiXLy","@babel/runtime/helpers/getPrototypeOf":"DHhBk","@babel/runtime/helpers/defineProperty":"eCMPI"}],"fIqcI":[function(require,module,exports) {
 function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) throw new TypeError("Cannot call a class as a function");
 }
@@ -12871,54 +12917,6 @@ function _createClass(Constructor, protoProps, staticProps) {
     return Constructor;
 }
 module.exports = _createClass;
-module.exports["default"] = module.exports, module.exports.__esModule = true;
-
-},{}],"i4Xiw":[function(require,module,exports) {
-var classApplyDescriptorSet = require("./classApplyDescriptorSet.js");
-var classExtractFieldDescriptor = require("./classExtractFieldDescriptor.js");
-function _classPrivateFieldSet(receiver, privateMap, value) {
-    var descriptor = classExtractFieldDescriptor(receiver, privateMap, "set");
-    classApplyDescriptorSet(receiver, descriptor, value);
-    return value;
-}
-module.exports = _classPrivateFieldSet;
-module.exports["default"] = module.exports, module.exports.__esModule = true;
-
-},{"./classApplyDescriptorSet.js":"jo2C1","./classExtractFieldDescriptor.js":"9Dilu"}],"jo2C1":[function(require,module,exports) {
-function _classApplyDescriptorSet(receiver, descriptor, value) {
-    if (descriptor.set) descriptor.set.call(receiver, value);
-    else {
-        if (!descriptor.writable) throw new TypeError("attempted to set read only private field");
-        descriptor.value = value;
-    }
-}
-module.exports = _classApplyDescriptorSet;
-module.exports["default"] = module.exports, module.exports.__esModule = true;
-
-},{}],"9Dilu":[function(require,module,exports) {
-function _classExtractFieldDescriptor(receiver, privateMap, action) {
-    if (!privateMap.has(receiver)) throw new TypeError("attempted to " + action + " private field on non-instance");
-    return privateMap.get(receiver);
-}
-module.exports = _classExtractFieldDescriptor;
-module.exports["default"] = module.exports, module.exports.__esModule = true;
-
-},{}],"kO1lU":[function(require,module,exports) {
-var classApplyDescriptorGet = require("./classApplyDescriptorGet.js");
-var classExtractFieldDescriptor = require("./classExtractFieldDescriptor.js");
-function _classPrivateFieldGet(receiver, privateMap) {
-    var descriptor = classExtractFieldDescriptor(receiver, privateMap, "get");
-    return classApplyDescriptorGet(receiver, descriptor);
-}
-module.exports = _classPrivateFieldGet;
-module.exports["default"] = module.exports, module.exports.__esModule = true;
-
-},{"./classApplyDescriptorGet.js":"cpb53","./classExtractFieldDescriptor.js":"9Dilu"}],"cpb53":[function(require,module,exports) {
-function _classApplyDescriptorGet(receiver, descriptor) {
-    if (descriptor.get) return descriptor.get.call(receiver);
-    return descriptor.value;
-}
-module.exports = _classApplyDescriptorGet;
 module.exports["default"] = module.exports, module.exports.__esModule = true;
 
 },{}],"5XfTb":[function(require,module,exports) {
@@ -13563,6 +13561,277 @@ exports.getOrigin = getOrigin;
     } else root['Fraction'] = Fraction;
 })(this);
 
-},{}]},["0xcHD","jKMjS"], "jKMjS", "parcelRequire6d3a")
+},{}],"8rtS4":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "default", ()=>View
+);
+var _classCallCheck = require("@babel/runtime/helpers/classCallCheck");
+var _classCallCheckDefault = parcelHelpers.interopDefault(_classCallCheck);
+var _createClass = require("@babel/runtime/helpers/createClass");
+var _createClassDefault = parcelHelpers.interopDefault(_createClass);
+var _defineProperty = require("@babel/runtime/helpers/defineProperty");
+var _definePropertyDefault = parcelHelpers.interopDefault(_defineProperty);
+var _iconsSvg = require("url:../../img/icons.svg");
+var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
+var View = /*#__PURE__*/ function() {
+    function View1() {
+        _classCallCheckDefault.default(this, View1);
+        _definePropertyDefault.default(this, "_data", void 0);
+    }
+    _createClassDefault.default(View1, [
+        {
+            key: "_clearAndRender",
+            value: function _clearAndRender(markup) {
+                this._parentElement.innerHTML = '';
+                this._parentElement.insertAdjacentHTML('afterbegin', markup);
+            }
+        },
+        {
+            key: "render",
+            value: function render(data) {
+                if (!data || Array.isArray(data) && data.length === 0) return this.renderError();
+                this._data = data;
+                var markup = this._generateMarkup();
+                this._clearAndRender(markup);
+            }
+        },
+        {
+            key: "renderSpinner",
+            value: function renderSpinner() {
+                var markup = "\n\t  <div class=\"spinner\">\n\t\t<svg>\n\t\t  <use href=\"".concat(_iconsSvgDefault.default, "#icon-loader\"></use>\n\t\t</svg>\n\t  </div>\n\t");
+                this._clearAndRender(markup);
+            }
+        },
+        {
+            key: "renderError",
+            value: function renderError() {
+                var message = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this._errorMessage;
+                var markup = "\n\t\t\t<div class=\"error\">\n\t\t\t\t<div>\n\t\t\t\t\t<svg>\n\t\t\t\t\t\t<use href=\"".concat(_iconsSvgDefault.default, "#icon-alert-triangle\"></use>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<p>").concat(message, "</p>\n\t\t\t</div>\n\t  ");
+                this._clearAndRender(markup);
+            }
+        },
+        {
+            key: "renderMessage",
+            value: function renderMessage() {
+                var message = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this._message;
+                var markup = "\n\t\t\t<div class=\"message\">\n\t\t\t\t<div>\n\t\t\t\t\t<svg>\n\t\t\t\t\t\t<use href=\"".concat(_iconsSvgDefault.default, "#icon-smile\"></use>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<p>").concat(message, "</p>\n\t\t\t</div>\n\t  ");
+                this._clearAndRender(markup);
+            }
+        }
+    ]);
+    return View1;
+}();
+
+},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","@babel/runtime/helpers/createClass":"eFNXV","@babel/runtime/helpers/defineProperty":"eCMPI","url:../../img/icons.svg":"5XfTb"}],"eCMPI":[function(require,module,exports) {
+function _defineProperty(obj, key, value) {
+    if (key in obj) Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+    });
+    else obj[key] = value;
+    return obj;
+}
+module.exports = _defineProperty;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+
+},{}],"k3YcS":[function(require,module,exports) {
+function _assertThisInitialized(self) {
+    if (self === void 0) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return self;
+}
+module.exports = _assertThisInitialized;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+
+},{}],"8mpJg":[function(require,module,exports) {
+var setPrototypeOf = require("./setPrototypeOf.js");
+function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) throw new TypeError("Super expression must either be null or a function");
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+        constructor: {
+            value: subClass,
+            writable: true,
+            configurable: true
+        }
+    });
+    if (superClass) setPrototypeOf(subClass, superClass);
+}
+module.exports = _inherits;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+
+},{"./setPrototypeOf.js":"2OSnG"}],"2OSnG":[function(require,module,exports) {
+function _setPrototypeOf(o, p) {
+    module.exports = _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf1(o1, p1) {
+        o1.__proto__ = p1;
+        return o1;
+    };
+    module.exports["default"] = module.exports, module.exports.__esModule = true;
+    return _setPrototypeOf(o, p);
+}
+module.exports = _setPrototypeOf;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+
+},{}],"iiXLy":[function(require,module,exports) {
+var _typeof = require("@babel/runtime/helpers/typeof")["default"];
+var assertThisInitialized = require("./assertThisInitialized.js");
+function _possibleConstructorReturn(self, call) {
+    if (call && (_typeof(call) === "object" || typeof call === "function")) return call;
+    return assertThisInitialized(self);
+}
+module.exports = _possibleConstructorReturn;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+
+},{"@babel/runtime/helpers/typeof":"1XGzZ","./assertThisInitialized.js":"k3YcS"}],"1XGzZ":[function(require,module,exports) {
+function _typeof(obj) {
+    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+        module.exports = _typeof = function _typeof1(obj1) {
+            return typeof obj1;
+        };
+        module.exports["default"] = module.exports, module.exports.__esModule = true;
+    } else {
+        module.exports = _typeof = function _typeof1(obj1) {
+            return obj1 && typeof Symbol === "function" && obj1.constructor === Symbol && obj1 !== Symbol.prototype ? "symbol" : typeof obj1;
+        };
+        module.exports["default"] = module.exports, module.exports.__esModule = true;
+    }
+    return _typeof(obj);
+}
+module.exports = _typeof;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+
+},{}],"DHhBk":[function(require,module,exports) {
+function _getPrototypeOf(o) {
+    module.exports = _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf1(o1) {
+        return o1.__proto__ || Object.getPrototypeOf(o1);
+    };
+    module.exports["default"] = module.exports, module.exports.__esModule = true;
+    return _getPrototypeOf(o);
+}
+module.exports = _getPrototypeOf;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+
+},{}],"51HTZ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _classCallCheck = require("@babel/runtime/helpers/classCallCheck");
+var _classCallCheckDefault = parcelHelpers.interopDefault(_classCallCheck);
+var _createClass = require("@babel/runtime/helpers/createClass");
+var _createClassDefault = parcelHelpers.interopDefault(_createClass);
+var _defineProperty = require("@babel/runtime/helpers/defineProperty");
+var _definePropertyDefault = parcelHelpers.interopDefault(_defineProperty);
+var SearchView = /*#__PURE__*/ function() {
+    function SearchView1() {
+        _classCallCheckDefault.default(this, SearchView1);
+        _definePropertyDefault.default(this, "_parentElement", document.querySelector('.search'));
+    }
+    _createClassDefault.default(SearchView1, [
+        {
+            key: "getQuery",
+            value: function getQuery() {
+                var query = this._parentElement.querySelector('.search__field').value;
+                this._clearInput();
+                return query;
+            }
+        },
+        {
+            key: "_clearInput",
+            value: function _clearInput() {
+                this._parentElement.querySelector('.search__field').value = '';
+            }
+        },
+        {
+            key: "addHandlerSearch",
+            value: function addHandlerSearch(handler) {
+                this._parentElement.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    handler();
+                });
+            }
+        }
+    ]);
+    return SearchView1;
+}();
+exports.default = new SearchView();
+
+},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@babel/runtime/helpers/createClass":"eFNXV","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","@babel/runtime/helpers/defineProperty":"eCMPI"}],"a6WEO":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _classCallCheck = require("@babel/runtime/helpers/classCallCheck");
+var _classCallCheckDefault = parcelHelpers.interopDefault(_classCallCheck);
+var _createClass = require("@babel/runtime/helpers/createClass");
+var _createClassDefault = parcelHelpers.interopDefault(_createClass);
+var _assertThisInitialized = require("@babel/runtime/helpers/assertThisInitialized");
+var _assertThisInitializedDefault = parcelHelpers.interopDefault(_assertThisInitialized);
+var _inherits = require("@babel/runtime/helpers/inherits");
+var _inheritsDefault = parcelHelpers.interopDefault(_inherits);
+var _possibleConstructorReturn = require("@babel/runtime/helpers/possibleConstructorReturn");
+var _possibleConstructorReturnDefault = parcelHelpers.interopDefault(_possibleConstructorReturn);
+var _getPrototypeOf = require("@babel/runtime/helpers/getPrototypeOf");
+var _getPrototypeOfDefault = parcelHelpers.interopDefault(_getPrototypeOf);
+var _defineProperty = require("@babel/runtime/helpers/defineProperty");
+var _definePropertyDefault = parcelHelpers.interopDefault(_defineProperty);
+var _view = require("./View");
+var _viewDefault = parcelHelpers.interopDefault(_view);
+var _iconsSvg = require("url:../../img/icons.svg");
+var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
+function _createSuper(Derived) {
+    var hasNativeReflectConstruct = _isNativeReflectConstruct();
+    return function _createSuperInternal() {
+        var Super = _getPrototypeOfDefault.default(Derived), result;
+        if (hasNativeReflectConstruct) {
+            var NewTarget = _getPrototypeOfDefault.default(this).constructor;
+            result = Reflect.construct(Super, arguments, NewTarget);
+        } else result = Super.apply(this, arguments);
+        return _possibleConstructorReturnDefault.default(this, result);
+    };
+}
+function _isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+        Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+        }));
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+var ResultsView1 = /*#__PURE__*/ function(_View) {
+    _inheritsDefault.default(ResultsView2, _View);
+    var _super = _createSuper(ResultsView2);
+    function ResultsView2() {
+        var _this;
+        _classCallCheckDefault.default(this, ResultsView2);
+        for(var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++)args[_key] = arguments[_key];
+        _this = _super.call.apply(_super, [
+            this
+        ].concat(args));
+        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_parentElement", document.querySelector('.results'));
+        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_errorMessage", 'No recipes found for your query! Please try again');
+        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_message", '');
+        return _this;
+    }
+    _createClassDefault.default(ResultsView2, [
+        {
+            key: "_generateMarkup",
+            value: function _generateMarkup() {
+                return this._data.map(this._generateMarkupPreview).join('');
+            }
+        },
+        {
+            key: "_generateMarkupPreview",
+            value: function _generateMarkupPreview(result) {
+                return "\n      <li class=\"preview\">\n        <a class=\"preview__link\" href=\"#".concat(result.id, "\">\n          <figure class=\"preview__fig\">\n            <img crossorigin src=\"").concat(result.image, "\" alt=\"").concat(result.title, "\" />\n          </figure>\n          <div class=\"preview__data\">\n            <h4 class=\"preview__title\">").concat(result.title, "</h4>\n            <p class=\"preview__publisher\">").concat(result.publisher, "</p>\n          </div>\n        </a>\n      </li>\n    ");
+            }
+        }
+    ]);
+    return ResultsView2;
+}(_viewDefault.default);
+exports.default = new ResultsView1();
+
+},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@babel/runtime/helpers/assertThisInitialized":"k3YcS","@babel/runtime/helpers/inherits":"8mpJg","@babel/runtime/helpers/possibleConstructorReturn":"iiXLy","@babel/runtime/helpers/getPrototypeOf":"DHhBk","./View":"8rtS4","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","@babel/runtime/helpers/defineProperty":"eCMPI","@babel/runtime/helpers/createClass":"eFNXV","url:../../img/icons.svg":"5XfTb"}]},["0xcHD","jKMjS"], "jKMjS", "parcelRequire6d3a")
 
 //# sourceMappingURL=index.436439df.js.map
