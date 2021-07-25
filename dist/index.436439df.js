@@ -392,9 +392,12 @@ var _searchView = require("./views/searchView");
 var _searchViewDefault = parcelHelpers.interopDefault(_searchView);
 var _resultsView = require("./views/resultsView");
 var _resultsViewDefault = parcelHelpers.interopDefault(_resultsView);
+var _paginationView = require("./views/paginationView");
+var _paginationViewDefault = parcelHelpers.interopDefault(_paginationView);
 var _stable = require("core-js/stable");
-var _runtime = require("regenerator-runtime/runtime");
-if (module.hot) module.hot.accept();
+var _runtime = require("regenerator-runtime/runtime"); // if (module.hot) {
+//   module.hot.accept();
+// }
 var controlRecipes = /*#__PURE__*/ function() {
     var _ref = _asyncToGeneratorDefault.default(/*#__PURE__*/ _regeneratorDefault.default.mark(function _callee() {
         var id;
@@ -444,33 +447,35 @@ var controlSearchResults = /*#__PURE__*/ function() {
             while(true)switch(_context2.prev = _context2.next){
                 case 0:
                     _context2.prev = 0;
-                    _resultsViewDefault.default.renderSpinner(); // 1) Get search query
+                    // 1) Get search query
                     query = _searchViewDefault.default.getQuery();
                     if (query) {
-                        _context2.next = 5;
+                        _context2.next = 4;
                         break;
                     }
                     return _context2.abrupt("return");
-                case 5:
+                case 4:
+                    _resultsViewDefault.default.renderSpinner(); // 2) Load search results
                     _context2.next = 7;
                     return _model.loadSearchResults(query);
                 case 7:
                     // 3} Render search results
-                    _resultsViewDefault.default.render(_model.state.search.results);
-                    _context2.next = 13;
+                    _resultsViewDefault.default.render(_model.getSearchResultsPage()); // 4) Render initial pagination views
+                    _paginationViewDefault.default.render(_model.state.search);
+                    _context2.next = 14;
                     break;
-                case 10:
-                    _context2.prev = 10;
+                case 11:
+                    _context2.prev = 11;
                     _context2.t0 = _context2["catch"](0);
                     console.log(_context2.t0);
-                case 13:
+                case 14:
                 case "end":
                     return _context2.stop();
             }
         }, _callee2, null, [
             [
                 0,
-                10
+                11
             ]
         ]);
     }));
@@ -478,13 +483,19 @@ var controlSearchResults = /*#__PURE__*/ function() {
         return _ref2.apply(this, arguments);
     };
 }();
+var controlPagination = function controlPagination1(pageNum) {
+    // 1} Render new search results
+    _resultsViewDefault.default.render(_model.getSearchResultsPage(pageNm)); // 2) Render new pagination views
+    _paginationViewDefault.default.render(_model.state.search);
+};
 var init = function init1() {
     _recipeViewDefault.default.addHandlerRender(controlRecipes);
     _searchViewDefault.default.addHandlerSearch(controlSearchResults);
+    _paginationViewDefault.default.addHandlerClick(controlPagination);
 };
 init();
 
-},{"@babel/runtime/helpers/asyncToGenerator":"5j50L","@babel/runtime/regenerator":"1L3WO","./model":"6Yfb5","core-js/stable":"eIyVg","regenerator-runtime/runtime":"cH8Iq","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","./views/recipeView":"9q0mt","./views/searchView":"51HTZ","./views/resultsView":"a6WEO"}],"5j50L":[function(require,module,exports) {
+},{"@babel/runtime/helpers/asyncToGenerator":"5j50L","@babel/runtime/regenerator":"1L3WO","./model":"6Yfb5","./views/recipeView":"9q0mt","./views/searchView":"51HTZ","./views/resultsView":"a6WEO","core-js/stable":"eIyVg","regenerator-runtime/runtime":"cH8Iq","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","./views/paginationView":"c2v8w"}],"5j50L":[function(require,module,exports) {
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
     try {
         var info = gen[key](arg);
@@ -1103,6 +1114,8 @@ parcelHelpers.export(exports, "loadRecipe", ()=>loadRecipe
 );
 parcelHelpers.export(exports, "loadSearchResults", ()=>loadSearchResults
 );
+parcelHelpers.export(exports, "getSearchResultsPage", ()=>getSearchResultsPage
+);
 var _asyncToGenerator = require("@babel/runtime/helpers/asyncToGenerator");
 var _asyncToGeneratorDefault = parcelHelpers.interopDefault(_asyncToGenerator);
 var _regenerator = require("@babel/runtime/regenerator");
@@ -1114,7 +1127,9 @@ var state = {
     },
     search: {
         query: '',
-        results: []
+        results: [],
+        resultsPerPage: _config.RES_PER_PAGE,
+        page: 1
     }
 };
 var loadRecipe = /*#__PURE__*/ function() {
@@ -1203,8 +1218,28 @@ var loadSearchResults = /*#__PURE__*/ function() {
         return _ref2.apply(this, arguments);
     };
 }();
+var getSearchResultsPage = function getSearchResultsPage1() {
+    var page = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : state.search.page;
+    state.search.page = page;
+    var start = (page - 1) * state.search.resultsPerPage;
+    var end = page * state.search.resultsPerPage;
+    return state.search.results.slice(start, end);
+};
 
-},{"@babel/runtime/helpers/asyncToGenerator":"5j50L","@babel/runtime/regenerator":"1L3WO","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","./config":"beA2m","./helpers":"9l3Yy"}],"JacNc":[function(require,module,exports) {
+},{"@babel/runtime/helpers/asyncToGenerator":"5j50L","@babel/runtime/regenerator":"1L3WO","./config":"beA2m","./helpers":"9l3Yy","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}],"beA2m":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "API_URL", ()=>API_URL
+);
+parcelHelpers.export(exports, "TIMEOUT_SEC", ()=>TIMEOUT_SEC
+);
+parcelHelpers.export(exports, "RES_PER_PAGE", ()=>RES_PER_PAGE
+);
+var API_URL = 'https://forkify-api.herokuapp.com/api/v2/recipes/';
+var TIMEOUT_SEC = 10;
+var RES_PER_PAGE = 10;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}],"JacNc":[function(require,module,exports) {
 exports.interopDefault = function(a) {
     return a && a.__esModule ? a : {
         default: a
@@ -1236,17 +1271,7 @@ exports.export = function(dest, destName, get) {
     });
 };
 
-},{}],"beA2m":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "API_URL", ()=>API_URL
-);
-parcelHelpers.export(exports, "TIMEOUT_SEC", ()=>TIMEOUT_SEC
-);
-var API_URL = 'https://forkify-api.herokuapp.com/api/v2/recipes/';
-var TIMEOUT_SEC = 10;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}],"9l3Yy":[function(require,module,exports) {
+},{}],"9l3Yy":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "getJSON", ()=>getJSON
@@ -1308,7 +1333,1035 @@ var getJSON = /*#__PURE__*/ function() {
     };
 }();
 
-},{"@babel/runtime/helpers/asyncToGenerator":"5j50L","@babel/runtime/regenerator":"1L3WO","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","./config":"beA2m"}],"eIyVg":[function(require,module,exports) {
+},{"@babel/runtime/helpers/asyncToGenerator":"5j50L","@babel/runtime/regenerator":"1L3WO","./config":"beA2m","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}],"9q0mt":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _classCallCheck = require("@babel/runtime/helpers/classCallCheck");
+var _classCallCheckDefault = parcelHelpers.interopDefault(_classCallCheck);
+var _createClass = require("@babel/runtime/helpers/createClass");
+var _createClassDefault = parcelHelpers.interopDefault(_createClass);
+var _assertThisInitialized = require("@babel/runtime/helpers/assertThisInitialized");
+var _assertThisInitializedDefault = parcelHelpers.interopDefault(_assertThisInitialized);
+var _inherits = require("@babel/runtime/helpers/inherits");
+var _inheritsDefault = parcelHelpers.interopDefault(_inherits);
+var _possibleConstructorReturn = require("@babel/runtime/helpers/possibleConstructorReturn");
+var _possibleConstructorReturnDefault = parcelHelpers.interopDefault(_possibleConstructorReturn);
+var _getPrototypeOf = require("@babel/runtime/helpers/getPrototypeOf");
+var _getPrototypeOfDefault = parcelHelpers.interopDefault(_getPrototypeOf);
+var _defineProperty = require("@babel/runtime/helpers/defineProperty");
+var _definePropertyDefault = parcelHelpers.interopDefault(_defineProperty);
+var _view = require("./View");
+var _viewDefault = parcelHelpers.interopDefault(_view);
+var _iconsSvg = require("url:../../img/icons.svg");
+var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
+var _fractionJs = require("fraction.js");
+var _fractionJsDefault = parcelHelpers.interopDefault(_fractionJs);
+function _createSuper(Derived) {
+    var hasNativeReflectConstruct = _isNativeReflectConstruct();
+    return function _createSuperInternal() {
+        var Super = _getPrototypeOfDefault.default(Derived), result;
+        if (hasNativeReflectConstruct) {
+            var NewTarget = _getPrototypeOfDefault.default(this).constructor;
+            result = Reflect.construct(Super, arguments, NewTarget);
+        } else result = Super.apply(this, arguments);
+        return _possibleConstructorReturnDefault.default(this, result);
+    };
+}
+function _isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+        Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+        }));
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+var RecipeView1 = /*#__PURE__*/ function(_View) {
+    _inheritsDefault.default(RecipeView2, _View);
+    var _super = _createSuper(RecipeView2);
+    function RecipeView2() {
+        var _this;
+        _classCallCheckDefault.default(this, RecipeView2);
+        for(var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++)args[_key] = arguments[_key];
+        _this = _super.call.apply(_super, [
+            this
+        ].concat(args));
+        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_parentElement", document.querySelector('.recipe'));
+        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_errorMessage", 'We could not find that recipe. Please try another one!');
+        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_message", '');
+        return _this;
+    }
+    _createClassDefault.default(RecipeView2, [
+        {
+            key: "addHandlerRender",
+            value: function addHandlerRender(handler) {
+                [
+                    'hashchange',
+                    'load'
+                ].forEach(function(ev) {
+                    return window.addEventListener(ev, handler);
+                });
+            }
+        },
+        {
+            key: "_generateMarkup",
+            value: function _generateMarkup() {
+                return "\n\t\t<figure class=\"recipe__fig\">\n\t\t\t<img src=\"".concat(this._data.image, "\" alt=\"").concat(this._data.title, "\" class=\"recipe__img\" crossorigin/>\n\t\t\t<h1 class=\"recipe__title\">\n\t\t\t\t<span>").concat(this._data.title, "</span>\n\t\t\t</h1>\n\t\t</figure>\n\n\t\t<div class=\"recipe__details\">\n\t\t\t<div class=\"recipe__info\">\n\t\t\t\t<svg class=\"recipe__info-icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-clock\"></use>\n\t\t\t\t</svg>\n\t\t\t\t<span class=\"recipe__info-data recipe__info-data--minutes\">").concat(this._data.cookingTime, "</span>\n\t\t\t\t<span class=\"recipe__info-text\">minutes</span>\n\t\t\t</div>\n\t\t\t<div class=\"recipe__info\">\n\t\t\t\t<svg class=\"recipe__info-icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-users\"></use>\n\t\t\t\t</svg>\n\t\t\t\t<span class=\"recipe__info-data recipe__info-data--people\">").concat(this._data.servings, "</span>\n\t\t\t\t<span class=\"recipe__info-text\">servings</span>\n\n\t\t\t\t<div class=\"recipe__info-buttons\">\n\t\t\t\t\t<button class=\"btn--tiny btn--increase-servings\">\n\t\t\t\t\t\t<svg>\n\t\t\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-minus-circle\"></use>\n\t\t\t\t\t\t</svg>\n\t\t\t\t\t</button>\n\t\t\t\t\t<button class=\"btn--tiny btn--increase-servings\">\n\t\t\t\t\t\t<svg>\n\t\t\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-plus-circle\"></use>\n\t\t\t\t\t\t</svg>\n\t\t\t\t\t</button>\n\t\t\t\t</div>\n\t\t\t</div>\n\n\t\t\t<div class=\"recipe__user-generated\">\n\t\t\t\t\n\t\t\t</div>\n\t\t\t<button class=\"btn--round\">\n\t\t\t\t<svg class=\"\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-bookmark-fill\"></use>\n\t\t\t\t</svg>\n\t\t\t</button>\n\t\t</div>\n\n\t\t<div class=\"recipe__ingredients\">\n\t\t\t<h2 class=\"heading--2\">Recipe ingredients</h2>\n\t\t\t<ul class=\"recipe__ingredient-list\">\n\t\t\t\t").concat(this._data.ingredients.map(this._generateMarkupIngredient).join(' '), "\n\t\t\t</ul>\n\t\t</div>\n\t\n\t\t<div class=\"recipe__directions\">\n\t\t\t<h2 class=\"heading--2\">How to cook it</h2>\n\t\t\t<p class=\"recipe__directions-text\">\n\t\t\t\tThis recipe was carefully designed and tested by\n\t\t\t\t<span class=\"recipe__publisher\">").concat(this._data.publisher, "</span>. Please check out\n\t\t\t\tdirections at their website.\n\t\t\t</p>\n\t\t\t<a\n\t\t\t\tclass=\"btn--small recipe__btn\"\n\t\t\t\thref=\"").concat(this._data.sourceUrl, "\"\n\t\t\t\ttarget=\"_blank\"\n\t\t\t>\n\t\t\t\t<span>Directions</span>\n\t\t\t\t<svg class=\"search__icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-arrow-right\"></use>\n\t\t\t\t</svg>\n\t\t\t</a>\n\t\t</div>\n\t");
+            }
+        },
+        {
+            key: "_generateMarkupIngredient",
+            value: function _generateMarkupIngredient(ing) {
+                return "\n\t\t<li class=\"recipe__ingredient\">\n\t\t\t<svg class=\"recipe__icon\">\n\t\t\t\t<use href=\"".concat(_iconsSvgDefault.default, "#icon-check\"></use>\n\t\t\t</svg>\n\t\t\t").concat(ing.quantity ? "<div class=\"recipe__quantity\">".concat(new _fractionJsDefault.default(ing.quantity).simplify(0.01).toFraction(true), "</div>") : '', "\n\t\t\t<div class=\"recipe__description\">\n\t\t\t\t<span class=\"recipe__unit\">").concat(ing.unit, "</span>\n\t\t\t\t").concat(ing.description, "\n\t\t\t</div>\n\t\t</li>\n\t");
+            }
+        }
+    ]);
+    return RecipeView2;
+}(_viewDefault.default);
+exports.default = new RecipeView1();
+
+},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@babel/runtime/helpers/createClass":"eFNXV","@babel/runtime/helpers/assertThisInitialized":"k3YcS","@babel/runtime/helpers/inherits":"8mpJg","@babel/runtime/helpers/possibleConstructorReturn":"iiXLy","@babel/runtime/helpers/getPrototypeOf":"DHhBk","@babel/runtime/helpers/defineProperty":"eCMPI","./View":"8rtS4","url:../../img/icons.svg":"5XfTb","fraction.js":"1JPao","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}],"fIqcI":[function(require,module,exports) {
+function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) throw new TypeError("Cannot call a class as a function");
+}
+module.exports = _classCallCheck;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+
+},{}],"eFNXV":[function(require,module,exports) {
+function _defineProperties(target, props) {
+    for(var i = 0; i < props.length; i++){
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+    }
+}
+function _createClass(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties(Constructor, staticProps);
+    return Constructor;
+}
+module.exports = _createClass;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+
+},{}],"k3YcS":[function(require,module,exports) {
+function _assertThisInitialized(self) {
+    if (self === void 0) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    return self;
+}
+module.exports = _assertThisInitialized;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+
+},{}],"8mpJg":[function(require,module,exports) {
+var setPrototypeOf = require("./setPrototypeOf.js");
+function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) throw new TypeError("Super expression must either be null or a function");
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+        constructor: {
+            value: subClass,
+            writable: true,
+            configurable: true
+        }
+    });
+    if (superClass) setPrototypeOf(subClass, superClass);
+}
+module.exports = _inherits;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+
+},{"./setPrototypeOf.js":"2OSnG"}],"2OSnG":[function(require,module,exports) {
+function _setPrototypeOf(o, p) {
+    module.exports = _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf1(o1, p1) {
+        o1.__proto__ = p1;
+        return o1;
+    };
+    module.exports["default"] = module.exports, module.exports.__esModule = true;
+    return _setPrototypeOf(o, p);
+}
+module.exports = _setPrototypeOf;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+
+},{}],"iiXLy":[function(require,module,exports) {
+var _typeof = require("@babel/runtime/helpers/typeof")["default"];
+var assertThisInitialized = require("./assertThisInitialized.js");
+function _possibleConstructorReturn(self, call) {
+    if (call && (_typeof(call) === "object" || typeof call === "function")) return call;
+    return assertThisInitialized(self);
+}
+module.exports = _possibleConstructorReturn;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+
+},{"@babel/runtime/helpers/typeof":"1XGzZ","./assertThisInitialized.js":"k3YcS"}],"1XGzZ":[function(require,module,exports) {
+function _typeof(obj) {
+    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+        module.exports = _typeof = function _typeof1(obj1) {
+            return typeof obj1;
+        };
+        module.exports["default"] = module.exports, module.exports.__esModule = true;
+    } else {
+        module.exports = _typeof = function _typeof1(obj1) {
+            return obj1 && typeof Symbol === "function" && obj1.constructor === Symbol && obj1 !== Symbol.prototype ? "symbol" : typeof obj1;
+        };
+        module.exports["default"] = module.exports, module.exports.__esModule = true;
+    }
+    return _typeof(obj);
+}
+module.exports = _typeof;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+
+},{}],"DHhBk":[function(require,module,exports) {
+function _getPrototypeOf(o) {
+    module.exports = _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf1(o1) {
+        return o1.__proto__ || Object.getPrototypeOf(o1);
+    };
+    module.exports["default"] = module.exports, module.exports.__esModule = true;
+    return _getPrototypeOf(o);
+}
+module.exports = _getPrototypeOf;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+
+},{}],"eCMPI":[function(require,module,exports) {
+function _defineProperty(obj, key, value) {
+    if (key in obj) Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+    });
+    else obj[key] = value;
+    return obj;
+}
+module.exports = _defineProperty;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+
+},{}],"8rtS4":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "default", ()=>View
+);
+var _classCallCheck = require("@babel/runtime/helpers/classCallCheck");
+var _classCallCheckDefault = parcelHelpers.interopDefault(_classCallCheck);
+var _createClass = require("@babel/runtime/helpers/createClass");
+var _createClassDefault = parcelHelpers.interopDefault(_createClass);
+var _defineProperty = require("@babel/runtime/helpers/defineProperty");
+var _definePropertyDefault = parcelHelpers.interopDefault(_defineProperty);
+var _iconsSvg = require("url:../../img/icons.svg");
+var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
+var View = /*#__PURE__*/ function() {
+    function View1() {
+        _classCallCheckDefault.default(this, View1);
+        _definePropertyDefault.default(this, "_data", void 0);
+    }
+    _createClassDefault.default(View1, [
+        {
+            key: "_clearAndRender",
+            value: function _clearAndRender(markup) {
+                this._parentElement.innerHTML = '';
+                this._parentElement.insertAdjacentHTML('afterbegin', markup);
+            }
+        },
+        {
+            key: "render",
+            value: function render(data) {
+                if (!data || Array.isArray(data) && data.length === 0) return this.renderError();
+                this._data = data;
+                var markup = this._generateMarkup();
+                this._clearAndRender(markup);
+            }
+        },
+        {
+            key: "renderSpinner",
+            value: function renderSpinner() {
+                var markup = "\n\t  <div class=\"spinner\">\n\t\t<svg>\n\t\t  <use href=\"".concat(_iconsSvgDefault.default, "#icon-loader\"></use>\n\t\t</svg>\n\t  </div>\n\t");
+                this._clearAndRender(markup);
+            }
+        },
+        {
+            key: "renderError",
+            value: function renderError() {
+                var message = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this._errorMessage;
+                var markup = "\n\t\t\t<div class=\"error\">\n\t\t\t\t<div>\n\t\t\t\t\t<svg>\n\t\t\t\t\t\t<use href=\"".concat(_iconsSvgDefault.default, "#icon-alert-triangle\"></use>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<p>").concat(message, "</p>\n\t\t\t</div>\n\t  ");
+                this._clearAndRender(markup);
+            }
+        },
+        {
+            key: "renderMessage",
+            value: function renderMessage() {
+                var message = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this._message;
+                var markup = "\n\t\t\t<div class=\"message\">\n\t\t\t\t<div>\n\t\t\t\t\t<svg>\n\t\t\t\t\t\t<use href=\"".concat(_iconsSvgDefault.default, "#icon-smile\"></use>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<p>").concat(message, "</p>\n\t\t\t</div>\n\t  ");
+                this._clearAndRender(markup);
+            }
+        }
+    ]);
+    return View1;
+}();
+
+},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@babel/runtime/helpers/createClass":"eFNXV","@babel/runtime/helpers/defineProperty":"eCMPI","url:../../img/icons.svg":"5XfTb","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}],"5XfTb":[function(require,module,exports) {
+module.exports = require('./bundle-url').getBundleURL() + "icons.c097e590.svg";
+
+},{"./bundle-url":"d7vwB"}],"d7vwB":[function(require,module,exports) {
+"use strict";
+/* globals document:readonly */ var bundleURL = null;
+function getBundleURLCached() {
+    if (!bundleURL) bundleURL = getBundleURL();
+    return bundleURL;
+}
+function getBundleURL() {
+    try {
+        throw new Error();
+    } catch (err) {
+        var matches = ('' + err.stack).match(/(https?|file|ftp):\/\/[^)\n]+/g);
+        if (matches) return getBaseURL(matches[0]);
+    }
+    return '/';
+}
+function getBaseURL(url) {
+    return ('' + url).replace(/^((?:https?|file|ftp):\/\/.+)\/[^/]+$/, '$1') + '/';
+} // TODO: Replace uses with `new URL(url).origin` when ie11 is no longer supported.
+function getOrigin(url) {
+    let matches = ('' + url).match(/(https?|file|ftp):\/\/[^/]+/);
+    if (!matches) throw new Error('Origin not found');
+    return matches[0];
+}
+exports.getBundleURL = getBundleURLCached;
+exports.getBaseURL = getBaseURL;
+exports.getOrigin = getOrigin;
+
+},{}],"1JPao":[function(require,module,exports) {
+/**
+ * @license Fraction.js v4.1.1 23/05/2021
+ * https://www.xarg.org/2014/03/rational-numbers-in-javascript/
+ *
+ * Copyright (c) 2021, Robert Eisele (robert@xarg.org)
+ * Dual licensed under the MIT or GPL Version 2 licenses.
+ **/ /**
+ *
+ * This class offers the possibility to calculate fractions.
+ * You can pass a fraction in different formats. Either as array, as double, as string or as an integer.
+ *
+ * Array/Object form
+ * [ 0 => <nominator>, 1 => <denominator> ]
+ * [ n => <nominator>, d => <denominator> ]
+ *
+ * Integer form
+ * - Single integer value
+ *
+ * Double form
+ * - Single double value
+ *
+ * String form
+ * 123.456 - a simple double
+ * 123/456 - a string fraction
+ * 123.'456' - a double with repeating decimal places
+ * 123.(456) - synonym
+ * 123.45'6' - a double with repeating last place
+ * 123.45(6) - synonym
+ *
+ * Example:
+ *
+ * var f = new Fraction("9.4'31'");
+ * f.mul([-4, 3]).div(4.9);
+ *
+ */ (function(root) {
+    // Maximum search depth for cyclic rational numbers. 2000 should be more than enough.
+    // Example: 1/7 = 0.(142857) has 6 repeating decimal places.
+    // If MAX_CYCLE_LEN gets reduced, long cycles will not be detected and toString() only gets the first 10 digits
+    var MAX_CYCLE_LEN = 2000;
+    // Parsed data to avoid calling "new" all the time
+    var P = {
+        "s": 1,
+        "n": 0,
+        "d": 1
+    };
+    function createError(name) {
+        function errorConstructor() {
+            var temp = Error.apply(this, arguments);
+            temp['name'] = this['name'] = name;
+            this['stack'] = temp['stack'];
+            this['message'] = temp['message'];
+        }
+        /**
+     * Error constructor
+     *
+     * @constructor
+     */ function IntermediateInheritor() {
+        }
+        IntermediateInheritor.prototype = Error.prototype;
+        errorConstructor.prototype = new IntermediateInheritor();
+        return errorConstructor;
+    }
+    var DivisionByZero = Fraction['DivisionByZero'] = createError('DivisionByZero');
+    var InvalidParameter = Fraction['InvalidParameter'] = createError('InvalidParameter');
+    function assign(n, s) {
+        if (isNaN(n = parseInt(n, 10))) throwInvalidParam();
+        return n * s;
+    }
+    function throwInvalidParam() {
+        throw new InvalidParameter();
+    }
+    function factorize(num) {
+        var factors = {
+        };
+        var n = num;
+        var i = 2;
+        var s = 4;
+        while(s <= n){
+            while(n % i === 0){
+                n /= i;
+                factors[i] = (factors[i] || 0) + 1;
+            }
+            s += 1 + 2 * i++;
+        }
+        if (n !== num) {
+            if (n > 1) factors[n] = (factors[n] || 0) + 1;
+        } else factors[num] = (factors[num] || 0) + 1;
+        return factors;
+    }
+    var parse = function(p1, p2) {
+        var n = 0, d = 1, s = 1;
+        var v = 0, w = 0, x = 0, y = 1, z = 1;
+        var A = 0, B = 1;
+        var C = 1, D = 1;
+        var N = 10000000;
+        var M;
+        if (p1 === undefined || p1 === null) ;
+        else if (p2 !== undefined) {
+            n = p1;
+            d = p2;
+            s = n * d;
+        } else switch(typeof p1){
+            case "object":
+                if ("d" in p1 && "n" in p1) {
+                    n = p1["n"];
+                    d = p1["d"];
+                    if ("s" in p1) n *= p1["s"];
+                } else if (0 in p1) {
+                    n = p1[0];
+                    if (1 in p1) d = p1[1];
+                } else throwInvalidParam();
+                s = n * d;
+                break;
+            case "number":
+                if (p1 < 0) {
+                    s = p1;
+                    p1 = -p1;
+                }
+                if (p1 % 1 === 0) n = p1;
+                else if (p1 > 0) {
+                    if (p1 >= 1) {
+                        z = Math.pow(10, Math.floor(1 + Math.log(p1) / Math.LN10));
+                        p1 /= z;
+                    }
+                    // Using Farey Sequences
+                    // http://www.johndcook.com/blog/2010/10/20/best-rational-approximation/
+                    while(B <= N && D <= N){
+                        M = (A + C) / (B + D);
+                        if (p1 === M) {
+                            if (B + D <= N) {
+                                n = A + C;
+                                d = B + D;
+                            } else if (D > B) {
+                                n = C;
+                                d = D;
+                            } else {
+                                n = A;
+                                d = B;
+                            }
+                            break;
+                        } else {
+                            if (p1 > M) {
+                                A += C;
+                                B += D;
+                            } else {
+                                C += A;
+                                D += B;
+                            }
+                            if (B > N) {
+                                n = C;
+                                d = D;
+                            } else {
+                                n = A;
+                                d = B;
+                            }
+                        }
+                    }
+                    n *= z;
+                } else if (isNaN(p1) || isNaN(p2)) d = n = NaN;
+                break;
+            case "string":
+                B = p1.match(/\d+|./g);
+                if (B === null) throwInvalidParam();
+                if (B[A] === '-') {
+                    s = -1;
+                    A++;
+                } else if (B[A] === '+') A++;
+                if (B.length === A + 1) w = assign(B[A++], s);
+                else if (B[A + 1] === '.' || B[A] === '.') {
+                    if (B[A] !== '.') v = assign(B[A++], s);
+                    A++;
+                    // Check for decimal places
+                    if (A + 1 === B.length || B[A + 1] === '(' && B[A + 3] === ')' || B[A + 1] === "'" && B[A + 3] === "'") {
+                        w = assign(B[A], s);
+                        y = Math.pow(10, B[A].length);
+                        A++;
+                    }
+                    // Check for repeating places
+                    if (B[A] === '(' && B[A + 2] === ')' || B[A] === "'" && B[A + 2] === "'") {
+                        x = assign(B[A + 1], s);
+                        z = Math.pow(10, B[A + 1].length) - 1;
+                        A += 3;
+                    }
+                } else if (B[A + 1] === '/' || B[A + 1] === ':') {
+                    w = assign(B[A], s);
+                    y = assign(B[A + 2], 1);
+                    A += 3;
+                } else if (B[A + 3] === '/' && B[A + 1] === ' ') {
+                    v = assign(B[A], s);
+                    w = assign(B[A + 2], s);
+                    y = assign(B[A + 4], 1);
+                    A += 5;
+                }
+                if (B.length <= A) {
+                    d = y * z;
+                    s = /* void */ n = x + d * v + z * w;
+                    break;
+                }
+            default:
+                throwInvalidParam();
+        }
+        if (d === 0) throw new DivisionByZero();
+        P["s"] = s < 0 ? -1 : 1;
+        P["n"] = Math.abs(n);
+        P["d"] = Math.abs(d);
+    };
+    function modpow(b, e, m) {
+        var r = 1;
+        for(; e > 0; b = b * b % m, e >>= 1)if (e & 1) r = r * b % m;
+        return r;
+    }
+    function cycleLen(n, d) {
+        for(; d % 2 === 0; d /= 2);
+        for(; d % 5 === 0; d /= 5);
+        if (d === 1) return 0;
+        // If we would like to compute really large numbers quicker, we could make use of Fermat's little theorem:
+        // 10^(d-1) % d == 1
+        // However, we don't need such large numbers and MAX_CYCLE_LEN should be the capstone,
+        // as we want to translate the numbers to strings.
+        var rem = 10 % d;
+        var t = 1;
+        for(; rem !== 1; t++){
+            rem = rem * 10 % d;
+            if (t > MAX_CYCLE_LEN) return 0; // Returning 0 here means that we don't print it as a cyclic number. It's likely that the answer is `d-1`
+        }
+        return t;
+    }
+    function cycleStart(n, d, len) {
+        var rem1 = 1;
+        var rem2 = modpow(10, len, d);
+        for(var t = 0; t < 300; t++){
+            // Solve 10^s == 10^(s+t) (mod d)
+            if (rem1 === rem2) return t;
+            rem1 = rem1 * 10 % d;
+            rem2 = rem2 * 10 % d;
+        }
+        return 0;
+    }
+    function gcd(a, b) {
+        if (!a) return b;
+        if (!b) return a;
+        while(true){
+            a %= b;
+            if (!a) return b;
+            b %= a;
+            if (!b) return a;
+        }
+    }
+    /**
+   * Module constructor
+   *
+   * @constructor
+   * @param {number|Fraction=} a
+   * @param {number=} b
+   */ function Fraction(a, b) {
+        if (!(this instanceof Fraction)) return new Fraction(a, b);
+        parse(a, b);
+        if (Fraction['REDUCE']) a = gcd(P["d"], P["n"]); // Abuse a
+        else a = 1;
+        this["s"] = P["s"];
+        this["n"] = P["n"] / a;
+        this["d"] = P["d"] / a;
+    }
+    /**
+   * Boolean global variable to be able to disable automatic reduction of the fraction
+   *
+   */ Fraction['REDUCE'] = 1;
+    Fraction.prototype = {
+        "s": 1,
+        "n": 0,
+        "d": 1,
+        /**
+     * Calculates the absolute value
+     *
+     * Ex: new Fraction(-4).abs() => 4
+     **/ "abs": function() {
+            return new Fraction(this["n"], this["d"]);
+        },
+        /**
+     * Inverts the sign of the current fraction
+     *
+     * Ex: new Fraction(-4).neg() => 4
+     **/ "neg": function() {
+            return new Fraction(-this["s"] * this["n"], this["d"]);
+        },
+        /**
+     * Adds two rational numbers
+     *
+     * Ex: new Fraction({n: 2, d: 3}).add("14.9") => 467 / 30
+     **/ "add": function(a, b) {
+            parse(a, b);
+            return new Fraction(this["s"] * this["n"] * P["d"] + P["s"] * this["d"] * P["n"], this["d"] * P["d"]);
+        },
+        /**
+     * Subtracts two rational numbers
+     *
+     * Ex: new Fraction({n: 2, d: 3}).add("14.9") => -427 / 30
+     **/ "sub": function(a, b) {
+            parse(a, b);
+            return new Fraction(this["s"] * this["n"] * P["d"] - P["s"] * this["d"] * P["n"], this["d"] * P["d"]);
+        },
+        /**
+     * Multiplies two rational numbers
+     *
+     * Ex: new Fraction("-17.(345)").mul(3) => 5776 / 111
+     **/ "mul": function(a, b) {
+            parse(a, b);
+            return new Fraction(this["s"] * P["s"] * this["n"] * P["n"], this["d"] * P["d"]);
+        },
+        /**
+     * Divides two rational numbers
+     *
+     * Ex: new Fraction("-17.(345)").inverse().div(3)
+     **/ "div": function(a, b) {
+            parse(a, b);
+            return new Fraction(this["s"] * P["s"] * this["n"] * P["d"], this["d"] * P["n"]);
+        },
+        /**
+     * Clones the actual object
+     *
+     * Ex: new Fraction("-17.(345)").clone()
+     **/ "clone": function() {
+            return new Fraction(this);
+        },
+        /**
+     * Calculates the modulo of two rational numbers - a more precise fmod
+     *
+     * Ex: new Fraction('4.(3)').mod([7, 8]) => (13/3) % (7/8) = (5/6)
+     **/ "mod": function(a, b) {
+            if (isNaN(this['n']) || isNaN(this['d'])) return new Fraction(NaN);
+            if (a === undefined) return new Fraction(this["s"] * this["n"] % this["d"], 1);
+            parse(a, b);
+            if (0 === P["n"] && 0 === this["d"]) Fraction(0, 0); // Throw DivisionByZero
+            /*
+       * First silly attempt, kinda slow
+       *
+       return that["sub"]({
+       "n": num["n"] * Math.floor((this.n / this.d) / (num.n / num.d)),
+       "d": num["d"],
+       "s": this["s"]
+       });*/ /*
+       * New attempt: a1 / b1 = a2 / b2 * q + r
+       * => b2 * a1 = a2 * b1 * q + b1 * b2 * r
+       * => (b2 * a1 % a2 * b1) / (b1 * b2)
+       */ return new Fraction(this["s"] * (P["d"] * this["n"]) % (P["n"] * this["d"]), P["d"] * this["d"]);
+        },
+        /**
+     * Calculates the fractional gcd of two rational numbers
+     *
+     * Ex: new Fraction(5,8).gcd(3,7) => 1/56
+     */ "gcd": function(a, b) {
+            parse(a, b);
+            // gcd(a / b, c / d) = gcd(a, c) / lcm(b, d)
+            return new Fraction(gcd(P["n"], this["n"]) * gcd(P["d"], this["d"]), P["d"] * this["d"]);
+        },
+        /**
+     * Calculates the fractional lcm of two rational numbers
+     *
+     * Ex: new Fraction(5,8).lcm(3,7) => 15
+     */ "lcm": function(a, b) {
+            parse(a, b);
+            // lcm(a / b, c / d) = lcm(a, c) / gcd(b, d)
+            if (P["n"] === 0 && this["n"] === 0) return new Fraction;
+            return new Fraction(P["n"] * this["n"], gcd(P["n"], this["n"]) * gcd(P["d"], this["d"]));
+        },
+        /**
+     * Calculates the ceil of a rational number
+     *
+     * Ex: new Fraction('4.(3)').ceil() => (5 / 1)
+     **/ "ceil": function(places) {
+            places = Math.pow(10, places || 0);
+            if (isNaN(this["n"]) || isNaN(this["d"])) return new Fraction(NaN);
+            return new Fraction(Math.ceil(places * this["s"] * this["n"] / this["d"]), places);
+        },
+        /**
+     * Calculates the floor of a rational number
+     *
+     * Ex: new Fraction('4.(3)').floor() => (4 / 1)
+     **/ "floor": function(places) {
+            places = Math.pow(10, places || 0);
+            if (isNaN(this["n"]) || isNaN(this["d"])) return new Fraction(NaN);
+            return new Fraction(Math.floor(places * this["s"] * this["n"] / this["d"]), places);
+        },
+        /**
+     * Rounds a rational numbers
+     *
+     * Ex: new Fraction('4.(3)').round() => (4 / 1)
+     **/ "round": function(places) {
+            places = Math.pow(10, places || 0);
+            if (isNaN(this["n"]) || isNaN(this["d"])) return new Fraction(NaN);
+            return new Fraction(Math.round(places * this["s"] * this["n"] / this["d"]), places);
+        },
+        /**
+     * Gets the inverse of the fraction, means numerator and denominator are exchanged
+     *
+     * Ex: new Fraction([-3, 4]).inverse() => -4 / 3
+     **/ "inverse": function() {
+            return new Fraction(this["s"] * this["d"], this["n"]);
+        },
+        /**
+     * Calculates the fraction to some rational exponent, if possible
+     *
+     * Ex: new Fraction(-1,2).pow(-3) => -8
+     */ "pow": function(a, b) {
+            parse(a, b);
+            // Trivial case when exp is an integer
+            if (P['d'] === 1) {
+                if (P['s'] < 0) return new Fraction(Math.pow(this['s'] * this["d"], P['n']), Math.pow(this["n"], P['n']));
+                else return new Fraction(Math.pow(this['s'] * this["n"], P['n']), Math.pow(this["d"], P['n']));
+            }
+            // Negative roots become complex
+            //     (-a/b)^(c/d) = x
+            // <=> (-1)^(c/d) * (a/b)^(c/d) = x
+            // <=> (cos(pi) + i*sin(pi))^(c/d) * (a/b)^(c/d) = x         # rotate 1 by 180°
+            // <=> (cos(c*pi/d) + i*sin(c*pi/d)) * (a/b)^(c/d) = x       # DeMoivre's formula in Q ( https://proofwiki.org/wiki/De_Moivre%27s_Formula/Rational_Index )
+            // From which follows that only for c=0 the root is non-complex. c/d is a reduced fraction, so that sin(c/dpi)=0 occurs for d=1, which is handled by our trivial case.
+            if (this['s'] < 0) return null;
+            // Now prime factor n and d
+            var N = factorize(this['n']);
+            var D = factorize(this['d']);
+            // Exponentiate and take root for n and d individually
+            var n = 1;
+            var d = 1;
+            for(var k in N){
+                if (k === '1') continue;
+                if (k === '0') {
+                    n = 0;
+                    break;
+                }
+                N[k] *= P['n'];
+                if (N[k] % P['d'] === 0) N[k] /= P['d'];
+                else return null;
+                n *= Math.pow(k, N[k]);
+            }
+            for(var k in D){
+                if (k === '1') continue;
+                D[k] *= P['n'];
+                if (D[k] % P['d'] === 0) D[k] /= P['d'];
+                else return null;
+                d *= Math.pow(k, D[k]);
+            }
+            if (P['s'] < 0) return new Fraction(d, n);
+            return new Fraction(n, d);
+        },
+        /**
+     * Check if two rational numbers are the same
+     *
+     * Ex: new Fraction(19.6).equals([98, 5]);
+     **/ "equals": function(a, b) {
+            parse(a, b);
+            return this["s"] * this["n"] * P["d"] === P["s"] * P["n"] * this["d"]; // Same as compare() === 0
+        },
+        /**
+     * Check if two rational numbers are the same
+     *
+     * Ex: new Fraction(19.6).equals([98, 5]);
+     **/ "compare": function(a, b) {
+            parse(a, b);
+            var t = this["s"] * this["n"] * P["d"] - P["s"] * P["n"] * this["d"];
+            return (0 < t) - (t < 0);
+        },
+        "simplify": function(eps) {
+            // First naive implementation, needs improvement
+            if (isNaN(this['n']) || isNaN(this['d'])) return this;
+            var cont = this['abs']()['toContinued']();
+            eps = eps || 0.001;
+            function rec(a) {
+                if (a.length === 1) return new Fraction(a[0]);
+                return rec(a.slice(1))['inverse']()['add'](a[0]);
+            }
+            for(var i = 0; i < cont.length; i++){
+                var tmp = rec(cont.slice(0, i + 1));
+                if (tmp['sub'](this['abs']())['abs']().valueOf() < eps) return tmp['mul'](this['s']);
+            }
+            return this;
+        },
+        /**
+     * Check if two rational numbers are divisible
+     *
+     * Ex: new Fraction(19.6).divisible(1.5);
+     */ "divisible": function(a, b) {
+            parse(a, b);
+            return !(!(P["n"] * this["d"]) || this["n"] * P["d"] % (P["n"] * this["d"]));
+        },
+        /**
+     * Returns a decimal representation of the fraction
+     *
+     * Ex: new Fraction("100.'91823'").valueOf() => 100.91823918239183
+     **/ 'valueOf': function() {
+            return this["s"] * this["n"] / this["d"];
+        },
+        /**
+     * Returns a string-fraction representation of a Fraction object
+     *
+     * Ex: new Fraction("1.'3'").toFraction() => "4 1/3"
+     **/ 'toFraction': function(excludeWhole) {
+            var whole, str = "";
+            var n = this["n"];
+            var d = this["d"];
+            if (this["s"] < 0) str += '-';
+            if (d === 1) str += n;
+            else {
+                if (excludeWhole && (whole = Math.floor(n / d)) > 0) {
+                    str += whole;
+                    str += " ";
+                    n %= d;
+                }
+                str += n;
+                str += '/';
+                str += d;
+            }
+            return str;
+        },
+        /**
+     * Returns a latex representation of a Fraction object
+     *
+     * Ex: new Fraction("1.'3'").toLatex() => "\frac{4}{3}"
+     **/ 'toLatex': function(excludeWhole) {
+            var whole, str = "";
+            var n = this["n"];
+            var d = this["d"];
+            if (this["s"] < 0) str += '-';
+            if (d === 1) str += n;
+            else {
+                if (excludeWhole && (whole = Math.floor(n / d)) > 0) {
+                    str += whole;
+                    n %= d;
+                }
+                str += "\\frac{";
+                str += n;
+                str += '}{';
+                str += d;
+                str += '}';
+            }
+            return str;
+        },
+        /**
+     * Returns an array of continued fraction elements
+     *
+     * Ex: new Fraction("7/8").toContinued() => [0,1,7]
+     */ 'toContinued': function() {
+            var t;
+            var a = this['n'];
+            var b = this['d'];
+            var res = [];
+            if (isNaN(a) || isNaN(b)) return res;
+            do {
+                res.push(Math.floor(a / b));
+                t = a % b;
+                a = b;
+                b = t;
+            }while (a !== 1)
+            return res;
+        },
+        /**
+     * Creates a string representation of a fraction with all digits
+     *
+     * Ex: new Fraction("100.'91823'").toString() => "100.(91823)"
+     **/ 'toString': function(dec) {
+            var g;
+            var N = this["n"];
+            var D = this["d"];
+            if (isNaN(N) || isNaN(D)) return "NaN";
+            if (!Fraction['REDUCE']) {
+                g = gcd(N, D);
+                N /= g;
+                D /= g;
+            }
+            dec = dec || 15; // 15 = decimal places when no repetation
+            var cycLen = cycleLen(N, D); // Cycle length
+            var cycOff = cycleStart(N, D, cycLen); // Cycle start
+            var str = this['s'] === -1 ? "-" : "";
+            str += N / D | 0;
+            N %= D;
+            N *= 10;
+            if (N) str += ".";
+            if (cycLen) {
+                for(var i = cycOff; i--;){
+                    str += N / D | 0;
+                    N %= D;
+                    N *= 10;
+                }
+                str += "(";
+                for(var i = cycLen; i--;){
+                    str += N / D | 0;
+                    N %= D;
+                    N *= 10;
+                }
+                str += ")";
+            } else for(var i = dec; N && i--;){
+                str += N / D | 0;
+                N %= D;
+                N *= 10;
+            }
+            return str;
+        }
+    };
+    if (typeof define === "function" && define["amd"]) define([], function() {
+        return Fraction;
+    });
+    else if (typeof exports === "object") {
+        Object.defineProperty(Fraction, "__esModule", {
+            'value': true
+        });
+        Fraction['default'] = Fraction;
+        Fraction['Fraction'] = Fraction;
+        module['exports'] = Fraction;
+    } else root['Fraction'] = Fraction;
+})(this);
+
+},{}],"51HTZ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _classCallCheck = require("@babel/runtime/helpers/classCallCheck");
+var _classCallCheckDefault = parcelHelpers.interopDefault(_classCallCheck);
+var _createClass = require("@babel/runtime/helpers/createClass");
+var _createClassDefault = parcelHelpers.interopDefault(_createClass);
+var _defineProperty = require("@babel/runtime/helpers/defineProperty");
+var _definePropertyDefault = parcelHelpers.interopDefault(_defineProperty);
+var SearchView = /*#__PURE__*/ function() {
+    function SearchView1() {
+        _classCallCheckDefault.default(this, SearchView1);
+        _definePropertyDefault.default(this, "_parentElement", document.querySelector('.search'));
+    }
+    _createClassDefault.default(SearchView1, [
+        {
+            key: "getQuery",
+            value: function getQuery() {
+                var query = this._parentElement.querySelector('.search__field').value;
+                this._clearInput();
+                return query;
+            }
+        },
+        {
+            key: "_clearInput",
+            value: function _clearInput() {
+                this._parentElement.querySelector('.search__field').value = '';
+            }
+        },
+        {
+            key: "addHandlerSearch",
+            value: function addHandlerSearch(handler) {
+                this._parentElement.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    handler();
+                });
+            }
+        }
+    ]);
+    return SearchView1;
+}();
+exports.default = new SearchView();
+
+},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@babel/runtime/helpers/createClass":"eFNXV","@babel/runtime/helpers/defineProperty":"eCMPI","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}],"a6WEO":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _classCallCheck = require("@babel/runtime/helpers/classCallCheck");
+var _classCallCheckDefault = parcelHelpers.interopDefault(_classCallCheck);
+var _createClass = require("@babel/runtime/helpers/createClass");
+var _createClassDefault = parcelHelpers.interopDefault(_createClass);
+var _assertThisInitialized = require("@babel/runtime/helpers/assertThisInitialized");
+var _assertThisInitializedDefault = parcelHelpers.interopDefault(_assertThisInitialized);
+var _inherits = require("@babel/runtime/helpers/inherits");
+var _inheritsDefault = parcelHelpers.interopDefault(_inherits);
+var _possibleConstructorReturn = require("@babel/runtime/helpers/possibleConstructorReturn");
+var _possibleConstructorReturnDefault = parcelHelpers.interopDefault(_possibleConstructorReturn);
+var _getPrototypeOf = require("@babel/runtime/helpers/getPrototypeOf");
+var _getPrototypeOfDefault = parcelHelpers.interopDefault(_getPrototypeOf);
+var _defineProperty = require("@babel/runtime/helpers/defineProperty");
+var _definePropertyDefault = parcelHelpers.interopDefault(_defineProperty);
+var _view = require("./View");
+var _viewDefault = parcelHelpers.interopDefault(_view);
+var _iconsSvg = require("url:../../img/icons.svg");
+var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
+function _createSuper(Derived) {
+    var hasNativeReflectConstruct = _isNativeReflectConstruct();
+    return function _createSuperInternal() {
+        var Super = _getPrototypeOfDefault.default(Derived), result;
+        if (hasNativeReflectConstruct) {
+            var NewTarget = _getPrototypeOfDefault.default(this).constructor;
+            result = Reflect.construct(Super, arguments, NewTarget);
+        } else result = Super.apply(this, arguments);
+        return _possibleConstructorReturnDefault.default(this, result);
+    };
+}
+function _isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+        Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+        }));
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+var ResultsView1 = /*#__PURE__*/ function(_View) {
+    _inheritsDefault.default(ResultsView2, _View);
+    var _super = _createSuper(ResultsView2);
+    function ResultsView2() {
+        var _this;
+        _classCallCheckDefault.default(this, ResultsView2);
+        for(var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++)args[_key] = arguments[_key];
+        _this = _super.call.apply(_super, [
+            this
+        ].concat(args));
+        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_parentElement", document.querySelector('.results'));
+        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_errorMessage", 'No recipes found for your query! Please try again');
+        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_message", '');
+        return _this;
+    }
+    _createClassDefault.default(ResultsView2, [
+        {
+            key: "_generateMarkup",
+            value: function _generateMarkup() {
+                return this._data.map(this._generateMarkupPreview).join('');
+            }
+        },
+        {
+            key: "_generateMarkupPreview",
+            value: function _generateMarkupPreview(result) {
+                return "\n      <li class=\"preview\">\n        <a class=\"preview__link\" href=\"#".concat(result.id, "\">\n          <figure class=\"preview__fig\">\n            <img crossorigin src=\"").concat(result.image, "\" alt=\"").concat(result.title, "\" />\n          </figure>\n          <div class=\"preview__data\">\n            <h4 class=\"preview__title\">").concat(result.title, "</h4>\n            <p class=\"preview__publisher\">").concat(result.publisher, "</p>\n          </div>\n        </a>\n      </li>\n    ");
+            }
+        }
+    ]);
+    return ResultsView2;
+}(_viewDefault.default);
+exports.default = new ResultsView1();
+
+},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@babel/runtime/helpers/createClass":"eFNXV","@babel/runtime/helpers/assertThisInitialized":"k3YcS","@babel/runtime/helpers/inherits":"8mpJg","@babel/runtime/helpers/possibleConstructorReturn":"iiXLy","@babel/runtime/helpers/getPrototypeOf":"DHhBk","@babel/runtime/helpers/defineProperty":"eCMPI","./View":"8rtS4","url:../../img/icons.svg":"5XfTb","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}],"eIyVg":[function(require,module,exports) {
 require('../modules/es.symbol');
 require('../modules/es.symbol.description');
 require('../modules/es.symbol.async-iterator');
@@ -12804,958 +13857,7 @@ $({
     }
 });
 
-},{"../internals/export":"2mZbc"}],"9q0mt":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _classCallCheck = require("@babel/runtime/helpers/classCallCheck");
-var _classCallCheckDefault = parcelHelpers.interopDefault(_classCallCheck);
-var _createClass = require("@babel/runtime/helpers/createClass");
-var _createClassDefault = parcelHelpers.interopDefault(_createClass);
-var _assertThisInitialized = require("@babel/runtime/helpers/assertThisInitialized");
-var _assertThisInitializedDefault = parcelHelpers.interopDefault(_assertThisInitialized);
-var _inherits = require("@babel/runtime/helpers/inherits");
-var _inheritsDefault = parcelHelpers.interopDefault(_inherits);
-var _possibleConstructorReturn = require("@babel/runtime/helpers/possibleConstructorReturn");
-var _possibleConstructorReturnDefault = parcelHelpers.interopDefault(_possibleConstructorReturn);
-var _getPrototypeOf = require("@babel/runtime/helpers/getPrototypeOf");
-var _getPrototypeOfDefault = parcelHelpers.interopDefault(_getPrototypeOf);
-var _defineProperty = require("@babel/runtime/helpers/defineProperty");
-var _definePropertyDefault = parcelHelpers.interopDefault(_defineProperty);
-var _view = require("./View");
-var _viewDefault = parcelHelpers.interopDefault(_view);
-var _iconsSvg = require("url:../../img/icons.svg");
-var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
-var _fractionJs = require("fraction.js");
-var _fractionJsDefault = parcelHelpers.interopDefault(_fractionJs);
-function _createSuper(Derived) {
-    var hasNativeReflectConstruct = _isNativeReflectConstruct();
-    return function _createSuperInternal() {
-        var Super = _getPrototypeOfDefault.default(Derived), result;
-        if (hasNativeReflectConstruct) {
-            var NewTarget = _getPrototypeOfDefault.default(this).constructor;
-            result = Reflect.construct(Super, arguments, NewTarget);
-        } else result = Super.apply(this, arguments);
-        return _possibleConstructorReturnDefault.default(this, result);
-    };
-}
-function _isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-    try {
-        Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
-        }));
-        return true;
-    } catch (e) {
-        return false;
-    }
-}
-var RecipeView1 = /*#__PURE__*/ function(_View) {
-    _inheritsDefault.default(RecipeView2, _View);
-    var _super = _createSuper(RecipeView2);
-    function RecipeView2() {
-        var _this;
-        _classCallCheckDefault.default(this, RecipeView2);
-        for(var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++)args[_key] = arguments[_key];
-        _this = _super.call.apply(_super, [
-            this
-        ].concat(args));
-        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_parentElement", document.querySelector('.recipe'));
-        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_errorMessage", 'We could not find that recipe. Please try another one!');
-        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_message", '');
-        return _this;
-    }
-    _createClassDefault.default(RecipeView2, [
-        {
-            key: "addHandlerRender",
-            value: function addHandlerRender(handler) {
-                [
-                    'hashchange',
-                    'load'
-                ].forEach(function(ev) {
-                    return window.addEventListener(ev, handler);
-                });
-            }
-        },
-        {
-            key: "_generateMarkup",
-            value: function _generateMarkup() {
-                return "\n\t\t<figure class=\"recipe__fig\">\n\t\t\t<img src=\"".concat(this._data.image, "\" alt=\"").concat(this._data.title, "\" class=\"recipe__img\" crossorigin/>\n\t\t\t<h1 class=\"recipe__title\">\n\t\t\t\t<span>").concat(this._data.title, "</span>\n\t\t\t</h1>\n\t\t</figure>\n\n\t\t<div class=\"recipe__details\">\n\t\t\t<div class=\"recipe__info\">\n\t\t\t\t<svg class=\"recipe__info-icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-clock\"></use>\n\t\t\t\t</svg>\n\t\t\t\t<span class=\"recipe__info-data recipe__info-data--minutes\">").concat(this._data.cookingTime, "</span>\n\t\t\t\t<span class=\"recipe__info-text\">minutes</span>\n\t\t\t</div>\n\t\t\t<div class=\"recipe__info\">\n\t\t\t\t<svg class=\"recipe__info-icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-users\"></use>\n\t\t\t\t</svg>\n\t\t\t\t<span class=\"recipe__info-data recipe__info-data--people\">").concat(this._data.servings, "</span>\n\t\t\t\t<span class=\"recipe__info-text\">servings</span>\n\n\t\t\t\t<div class=\"recipe__info-buttons\">\n\t\t\t\t\t<button class=\"btn--tiny btn--increase-servings\">\n\t\t\t\t\t\t<svg>\n\t\t\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-minus-circle\"></use>\n\t\t\t\t\t\t</svg>\n\t\t\t\t\t</button>\n\t\t\t\t\t<button class=\"btn--tiny btn--increase-servings\">\n\t\t\t\t\t\t<svg>\n\t\t\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-plus-circle\"></use>\n\t\t\t\t\t\t</svg>\n\t\t\t\t\t</button>\n\t\t\t\t</div>\n\t\t\t</div>\n\n\t\t\t<div class=\"recipe__user-generated\">\n\t\t\t\t\n\t\t\t</div>\n\t\t\t<button class=\"btn--round\">\n\t\t\t\t<svg class=\"\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-bookmark-fill\"></use>\n\t\t\t\t</svg>\n\t\t\t</button>\n\t\t</div>\n\n\t\t<div class=\"recipe__ingredients\">\n\t\t\t<h2 class=\"heading--2\">Recipe ingredients</h2>\n\t\t\t<ul class=\"recipe__ingredient-list\">\n\t\t\t\t").concat(this._data.ingredients.map(this._generateMarkupIngredient).join(' '), "\n\t\t\t</ul>\n\t\t</div>\n\t\n\t\t<div class=\"recipe__directions\">\n\t\t\t<h2 class=\"heading--2\">How to cook it</h2>\n\t\t\t<p class=\"recipe__directions-text\">\n\t\t\t\tThis recipe was carefully designed and tested by\n\t\t\t\t<span class=\"recipe__publisher\">").concat(this._data.publisher, "</span>. Please check out\n\t\t\t\tdirections at their website.\n\t\t\t</p>\n\t\t\t<a\n\t\t\t\tclass=\"btn--small recipe__btn\"\n\t\t\t\thref=\"").concat(this._data.sourceUrl, "\"\n\t\t\t\ttarget=\"_blank\"\n\t\t\t>\n\t\t\t\t<span>Directions</span>\n\t\t\t\t<svg class=\"search__icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-arrow-right\"></use>\n\t\t\t\t</svg>\n\t\t\t</a>\n\t\t</div>\n\t");
-            }
-        },
-        {
-            key: "_generateMarkupIngredient",
-            value: function _generateMarkupIngredient(ing) {
-                return "\n\t\t<li class=\"recipe__ingredient\">\n\t\t\t<svg class=\"recipe__icon\">\n\t\t\t\t<use href=\"".concat(_iconsSvgDefault.default, "#icon-check\"></use>\n\t\t\t</svg>\n\t\t\t").concat(ing.quantity ? "<div class=\"recipe__quantity\">".concat(new _fractionJsDefault.default(ing.quantity).simplify(0.01).toFraction(true), "</div>") : '', "\n\t\t\t<div class=\"recipe__description\">\n\t\t\t\t<span class=\"recipe__unit\">").concat(ing.unit, "</span>\n\t\t\t\t").concat(ing.description, "\n\t\t\t</div>\n\t\t</li>\n\t");
-            }
-        }
-    ]);
-    return RecipeView2;
-}(_viewDefault.default);
-exports.default = new RecipeView1();
-
-},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","@babel/runtime/helpers/createClass":"eFNXV","url:../../img/icons.svg":"5XfTb","fraction.js":"1JPao","./View":"8rtS4","@babel/runtime/helpers/assertThisInitialized":"k3YcS","@babel/runtime/helpers/inherits":"8mpJg","@babel/runtime/helpers/possibleConstructorReturn":"iiXLy","@babel/runtime/helpers/getPrototypeOf":"DHhBk","@babel/runtime/helpers/defineProperty":"eCMPI"}],"fIqcI":[function(require,module,exports) {
-function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) throw new TypeError("Cannot call a class as a function");
-}
-module.exports = _classCallCheck;
-module.exports["default"] = module.exports, module.exports.__esModule = true;
-
-},{}],"eFNXV":[function(require,module,exports) {
-function _defineProperties(target, props) {
-    for(var i = 0; i < props.length; i++){
-        var descriptor = props[i];
-        descriptor.enumerable = descriptor.enumerable || false;
-        descriptor.configurable = true;
-        if ("value" in descriptor) descriptor.writable = true;
-        Object.defineProperty(target, descriptor.key, descriptor);
-    }
-}
-function _createClass(Constructor, protoProps, staticProps) {
-    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-    if (staticProps) _defineProperties(Constructor, staticProps);
-    return Constructor;
-}
-module.exports = _createClass;
-module.exports["default"] = module.exports, module.exports.__esModule = true;
-
-},{}],"5XfTb":[function(require,module,exports) {
-module.exports = require('./bundle-url').getBundleURL() + "icons.c097e590.svg";
-
-},{"./bundle-url":"d7vwB"}],"d7vwB":[function(require,module,exports) {
-"use strict";
-/* globals document:readonly */ var bundleURL = null;
-function getBundleURLCached() {
-    if (!bundleURL) bundleURL = getBundleURL();
-    return bundleURL;
-}
-function getBundleURL() {
-    try {
-        throw new Error();
-    } catch (err) {
-        var matches = ('' + err.stack).match(/(https?|file|ftp):\/\/[^)\n]+/g);
-        if (matches) return getBaseURL(matches[0]);
-    }
-    return '/';
-}
-function getBaseURL(url) {
-    return ('' + url).replace(/^((?:https?|file|ftp):\/\/.+)\/[^/]+$/, '$1') + '/';
-} // TODO: Replace uses with `new URL(url).origin` when ie11 is no longer supported.
-function getOrigin(url) {
-    let matches = ('' + url).match(/(https?|file|ftp):\/\/[^/]+/);
-    if (!matches) throw new Error('Origin not found');
-    return matches[0];
-}
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-exports.getOrigin = getOrigin;
-
-},{}],"1JPao":[function(require,module,exports) {
-/**
- * @license Fraction.js v4.1.1 23/05/2021
- * https://www.xarg.org/2014/03/rational-numbers-in-javascript/
- *
- * Copyright (c) 2021, Robert Eisele (robert@xarg.org)
- * Dual licensed under the MIT or GPL Version 2 licenses.
- **/ /**
- *
- * This class offers the possibility to calculate fractions.
- * You can pass a fraction in different formats. Either as array, as double, as string or as an integer.
- *
- * Array/Object form
- * [ 0 => <nominator>, 1 => <denominator> ]
- * [ n => <nominator>, d => <denominator> ]
- *
- * Integer form
- * - Single integer value
- *
- * Double form
- * - Single double value
- *
- * String form
- * 123.456 - a simple double
- * 123/456 - a string fraction
- * 123.'456' - a double with repeating decimal places
- * 123.(456) - synonym
- * 123.45'6' - a double with repeating last place
- * 123.45(6) - synonym
- *
- * Example:
- *
- * var f = new Fraction("9.4'31'");
- * f.mul([-4, 3]).div(4.9);
- *
- */ (function(root) {
-    // Maximum search depth for cyclic rational numbers. 2000 should be more than enough.
-    // Example: 1/7 = 0.(142857) has 6 repeating decimal places.
-    // If MAX_CYCLE_LEN gets reduced, long cycles will not be detected and toString() only gets the first 10 digits
-    var MAX_CYCLE_LEN = 2000;
-    // Parsed data to avoid calling "new" all the time
-    var P = {
-        "s": 1,
-        "n": 0,
-        "d": 1
-    };
-    function createError(name) {
-        function errorConstructor() {
-            var temp = Error.apply(this, arguments);
-            temp['name'] = this['name'] = name;
-            this['stack'] = temp['stack'];
-            this['message'] = temp['message'];
-        }
-        /**
-     * Error constructor
-     *
-     * @constructor
-     */ function IntermediateInheritor() {
-        }
-        IntermediateInheritor.prototype = Error.prototype;
-        errorConstructor.prototype = new IntermediateInheritor();
-        return errorConstructor;
-    }
-    var DivisionByZero = Fraction['DivisionByZero'] = createError('DivisionByZero');
-    var InvalidParameter = Fraction['InvalidParameter'] = createError('InvalidParameter');
-    function assign(n, s) {
-        if (isNaN(n = parseInt(n, 10))) throwInvalidParam();
-        return n * s;
-    }
-    function throwInvalidParam() {
-        throw new InvalidParameter();
-    }
-    function factorize(num) {
-        var factors = {
-        };
-        var n = num;
-        var i = 2;
-        var s = 4;
-        while(s <= n){
-            while(n % i === 0){
-                n /= i;
-                factors[i] = (factors[i] || 0) + 1;
-            }
-            s += 1 + 2 * i++;
-        }
-        if (n !== num) {
-            if (n > 1) factors[n] = (factors[n] || 0) + 1;
-        } else factors[num] = (factors[num] || 0) + 1;
-        return factors;
-    }
-    var parse = function(p1, p2) {
-        var n = 0, d = 1, s = 1;
-        var v = 0, w = 0, x = 0, y = 1, z = 1;
-        var A = 0, B = 1;
-        var C = 1, D = 1;
-        var N = 10000000;
-        var M;
-        if (p1 === undefined || p1 === null) ;
-        else if (p2 !== undefined) {
-            n = p1;
-            d = p2;
-            s = n * d;
-        } else switch(typeof p1){
-            case "object":
-                if ("d" in p1 && "n" in p1) {
-                    n = p1["n"];
-                    d = p1["d"];
-                    if ("s" in p1) n *= p1["s"];
-                } else if (0 in p1) {
-                    n = p1[0];
-                    if (1 in p1) d = p1[1];
-                } else throwInvalidParam();
-                s = n * d;
-                break;
-            case "number":
-                if (p1 < 0) {
-                    s = p1;
-                    p1 = -p1;
-                }
-                if (p1 % 1 === 0) n = p1;
-                else if (p1 > 0) {
-                    if (p1 >= 1) {
-                        z = Math.pow(10, Math.floor(1 + Math.log(p1) / Math.LN10));
-                        p1 /= z;
-                    }
-                    // Using Farey Sequences
-                    // http://www.johndcook.com/blog/2010/10/20/best-rational-approximation/
-                    while(B <= N && D <= N){
-                        M = (A + C) / (B + D);
-                        if (p1 === M) {
-                            if (B + D <= N) {
-                                n = A + C;
-                                d = B + D;
-                            } else if (D > B) {
-                                n = C;
-                                d = D;
-                            } else {
-                                n = A;
-                                d = B;
-                            }
-                            break;
-                        } else {
-                            if (p1 > M) {
-                                A += C;
-                                B += D;
-                            } else {
-                                C += A;
-                                D += B;
-                            }
-                            if (B > N) {
-                                n = C;
-                                d = D;
-                            } else {
-                                n = A;
-                                d = B;
-                            }
-                        }
-                    }
-                    n *= z;
-                } else if (isNaN(p1) || isNaN(p2)) d = n = NaN;
-                break;
-            case "string":
-                B = p1.match(/\d+|./g);
-                if (B === null) throwInvalidParam();
-                if (B[A] === '-') {
-                    s = -1;
-                    A++;
-                } else if (B[A] === '+') A++;
-                if (B.length === A + 1) w = assign(B[A++], s);
-                else if (B[A + 1] === '.' || B[A] === '.') {
-                    if (B[A] !== '.') v = assign(B[A++], s);
-                    A++;
-                    // Check for decimal places
-                    if (A + 1 === B.length || B[A + 1] === '(' && B[A + 3] === ')' || B[A + 1] === "'" && B[A + 3] === "'") {
-                        w = assign(B[A], s);
-                        y = Math.pow(10, B[A].length);
-                        A++;
-                    }
-                    // Check for repeating places
-                    if (B[A] === '(' && B[A + 2] === ')' || B[A] === "'" && B[A + 2] === "'") {
-                        x = assign(B[A + 1], s);
-                        z = Math.pow(10, B[A + 1].length) - 1;
-                        A += 3;
-                    }
-                } else if (B[A + 1] === '/' || B[A + 1] === ':') {
-                    w = assign(B[A], s);
-                    y = assign(B[A + 2], 1);
-                    A += 3;
-                } else if (B[A + 3] === '/' && B[A + 1] === ' ') {
-                    v = assign(B[A], s);
-                    w = assign(B[A + 2], s);
-                    y = assign(B[A + 4], 1);
-                    A += 5;
-                }
-                if (B.length <= A) {
-                    d = y * z;
-                    s = /* void */ n = x + d * v + z * w;
-                    break;
-                }
-            default:
-                throwInvalidParam();
-        }
-        if (d === 0) throw new DivisionByZero();
-        P["s"] = s < 0 ? -1 : 1;
-        P["n"] = Math.abs(n);
-        P["d"] = Math.abs(d);
-    };
-    function modpow(b, e, m) {
-        var r = 1;
-        for(; e > 0; b = b * b % m, e >>= 1)if (e & 1) r = r * b % m;
-        return r;
-    }
-    function cycleLen(n, d) {
-        for(; d % 2 === 0; d /= 2);
-        for(; d % 5 === 0; d /= 5);
-        if (d === 1) return 0;
-        // If we would like to compute really large numbers quicker, we could make use of Fermat's little theorem:
-        // 10^(d-1) % d == 1
-        // However, we don't need such large numbers and MAX_CYCLE_LEN should be the capstone,
-        // as we want to translate the numbers to strings.
-        var rem = 10 % d;
-        var t = 1;
-        for(; rem !== 1; t++){
-            rem = rem * 10 % d;
-            if (t > MAX_CYCLE_LEN) return 0; // Returning 0 here means that we don't print it as a cyclic number. It's likely that the answer is `d-1`
-        }
-        return t;
-    }
-    function cycleStart(n, d, len) {
-        var rem1 = 1;
-        var rem2 = modpow(10, len, d);
-        for(var t = 0; t < 300; t++){
-            // Solve 10^s == 10^(s+t) (mod d)
-            if (rem1 === rem2) return t;
-            rem1 = rem1 * 10 % d;
-            rem2 = rem2 * 10 % d;
-        }
-        return 0;
-    }
-    function gcd(a, b) {
-        if (!a) return b;
-        if (!b) return a;
-        while(true){
-            a %= b;
-            if (!a) return b;
-            b %= a;
-            if (!b) return a;
-        }
-    }
-    /**
-   * Module constructor
-   *
-   * @constructor
-   * @param {number|Fraction=} a
-   * @param {number=} b
-   */ function Fraction(a, b) {
-        if (!(this instanceof Fraction)) return new Fraction(a, b);
-        parse(a, b);
-        if (Fraction['REDUCE']) a = gcd(P["d"], P["n"]); // Abuse a
-        else a = 1;
-        this["s"] = P["s"];
-        this["n"] = P["n"] / a;
-        this["d"] = P["d"] / a;
-    }
-    /**
-   * Boolean global variable to be able to disable automatic reduction of the fraction
-   *
-   */ Fraction['REDUCE'] = 1;
-    Fraction.prototype = {
-        "s": 1,
-        "n": 0,
-        "d": 1,
-        /**
-     * Calculates the absolute value
-     *
-     * Ex: new Fraction(-4).abs() => 4
-     **/ "abs": function() {
-            return new Fraction(this["n"], this["d"]);
-        },
-        /**
-     * Inverts the sign of the current fraction
-     *
-     * Ex: new Fraction(-4).neg() => 4
-     **/ "neg": function() {
-            return new Fraction(-this["s"] * this["n"], this["d"]);
-        },
-        /**
-     * Adds two rational numbers
-     *
-     * Ex: new Fraction({n: 2, d: 3}).add("14.9") => 467 / 30
-     **/ "add": function(a, b) {
-            parse(a, b);
-            return new Fraction(this["s"] * this["n"] * P["d"] + P["s"] * this["d"] * P["n"], this["d"] * P["d"]);
-        },
-        /**
-     * Subtracts two rational numbers
-     *
-     * Ex: new Fraction({n: 2, d: 3}).add("14.9") => -427 / 30
-     **/ "sub": function(a, b) {
-            parse(a, b);
-            return new Fraction(this["s"] * this["n"] * P["d"] - P["s"] * this["d"] * P["n"], this["d"] * P["d"]);
-        },
-        /**
-     * Multiplies two rational numbers
-     *
-     * Ex: new Fraction("-17.(345)").mul(3) => 5776 / 111
-     **/ "mul": function(a, b) {
-            parse(a, b);
-            return new Fraction(this["s"] * P["s"] * this["n"] * P["n"], this["d"] * P["d"]);
-        },
-        /**
-     * Divides two rational numbers
-     *
-     * Ex: new Fraction("-17.(345)").inverse().div(3)
-     **/ "div": function(a, b) {
-            parse(a, b);
-            return new Fraction(this["s"] * P["s"] * this["n"] * P["d"], this["d"] * P["n"]);
-        },
-        /**
-     * Clones the actual object
-     *
-     * Ex: new Fraction("-17.(345)").clone()
-     **/ "clone": function() {
-            return new Fraction(this);
-        },
-        /**
-     * Calculates the modulo of two rational numbers - a more precise fmod
-     *
-     * Ex: new Fraction('4.(3)').mod([7, 8]) => (13/3) % (7/8) = (5/6)
-     **/ "mod": function(a, b) {
-            if (isNaN(this['n']) || isNaN(this['d'])) return new Fraction(NaN);
-            if (a === undefined) return new Fraction(this["s"] * this["n"] % this["d"], 1);
-            parse(a, b);
-            if (0 === P["n"] && 0 === this["d"]) Fraction(0, 0); // Throw DivisionByZero
-            /*
-       * First silly attempt, kinda slow
-       *
-       return that["sub"]({
-       "n": num["n"] * Math.floor((this.n / this.d) / (num.n / num.d)),
-       "d": num["d"],
-       "s": this["s"]
-       });*/ /*
-       * New attempt: a1 / b1 = a2 / b2 * q + r
-       * => b2 * a1 = a2 * b1 * q + b1 * b2 * r
-       * => (b2 * a1 % a2 * b1) / (b1 * b2)
-       */ return new Fraction(this["s"] * (P["d"] * this["n"]) % (P["n"] * this["d"]), P["d"] * this["d"]);
-        },
-        /**
-     * Calculates the fractional gcd of two rational numbers
-     *
-     * Ex: new Fraction(5,8).gcd(3,7) => 1/56
-     */ "gcd": function(a, b) {
-            parse(a, b);
-            // gcd(a / b, c / d) = gcd(a, c) / lcm(b, d)
-            return new Fraction(gcd(P["n"], this["n"]) * gcd(P["d"], this["d"]), P["d"] * this["d"]);
-        },
-        /**
-     * Calculates the fractional lcm of two rational numbers
-     *
-     * Ex: new Fraction(5,8).lcm(3,7) => 15
-     */ "lcm": function(a, b) {
-            parse(a, b);
-            // lcm(a / b, c / d) = lcm(a, c) / gcd(b, d)
-            if (P["n"] === 0 && this["n"] === 0) return new Fraction;
-            return new Fraction(P["n"] * this["n"], gcd(P["n"], this["n"]) * gcd(P["d"], this["d"]));
-        },
-        /**
-     * Calculates the ceil of a rational number
-     *
-     * Ex: new Fraction('4.(3)').ceil() => (5 / 1)
-     **/ "ceil": function(places) {
-            places = Math.pow(10, places || 0);
-            if (isNaN(this["n"]) || isNaN(this["d"])) return new Fraction(NaN);
-            return new Fraction(Math.ceil(places * this["s"] * this["n"] / this["d"]), places);
-        },
-        /**
-     * Calculates the floor of a rational number
-     *
-     * Ex: new Fraction('4.(3)').floor() => (4 / 1)
-     **/ "floor": function(places) {
-            places = Math.pow(10, places || 0);
-            if (isNaN(this["n"]) || isNaN(this["d"])) return new Fraction(NaN);
-            return new Fraction(Math.floor(places * this["s"] * this["n"] / this["d"]), places);
-        },
-        /**
-     * Rounds a rational numbers
-     *
-     * Ex: new Fraction('4.(3)').round() => (4 / 1)
-     **/ "round": function(places) {
-            places = Math.pow(10, places || 0);
-            if (isNaN(this["n"]) || isNaN(this["d"])) return new Fraction(NaN);
-            return new Fraction(Math.round(places * this["s"] * this["n"] / this["d"]), places);
-        },
-        /**
-     * Gets the inverse of the fraction, means numerator and denominator are exchanged
-     *
-     * Ex: new Fraction([-3, 4]).inverse() => -4 / 3
-     **/ "inverse": function() {
-            return new Fraction(this["s"] * this["d"], this["n"]);
-        },
-        /**
-     * Calculates the fraction to some rational exponent, if possible
-     *
-     * Ex: new Fraction(-1,2).pow(-3) => -8
-     */ "pow": function(a, b) {
-            parse(a, b);
-            // Trivial case when exp is an integer
-            if (P['d'] === 1) {
-                if (P['s'] < 0) return new Fraction(Math.pow(this['s'] * this["d"], P['n']), Math.pow(this["n"], P['n']));
-                else return new Fraction(Math.pow(this['s'] * this["n"], P['n']), Math.pow(this["d"], P['n']));
-            }
-            // Negative roots become complex
-            //     (-a/b)^(c/d) = x
-            // <=> (-1)^(c/d) * (a/b)^(c/d) = x
-            // <=> (cos(pi) + i*sin(pi))^(c/d) * (a/b)^(c/d) = x         # rotate 1 by 180°
-            // <=> (cos(c*pi/d) + i*sin(c*pi/d)) * (a/b)^(c/d) = x       # DeMoivre's formula in Q ( https://proofwiki.org/wiki/De_Moivre%27s_Formula/Rational_Index )
-            // From which follows that only for c=0 the root is non-complex. c/d is a reduced fraction, so that sin(c/dpi)=0 occurs for d=1, which is handled by our trivial case.
-            if (this['s'] < 0) return null;
-            // Now prime factor n and d
-            var N = factorize(this['n']);
-            var D = factorize(this['d']);
-            // Exponentiate and take root for n and d individually
-            var n = 1;
-            var d = 1;
-            for(var k in N){
-                if (k === '1') continue;
-                if (k === '0') {
-                    n = 0;
-                    break;
-                }
-                N[k] *= P['n'];
-                if (N[k] % P['d'] === 0) N[k] /= P['d'];
-                else return null;
-                n *= Math.pow(k, N[k]);
-            }
-            for(var k in D){
-                if (k === '1') continue;
-                D[k] *= P['n'];
-                if (D[k] % P['d'] === 0) D[k] /= P['d'];
-                else return null;
-                d *= Math.pow(k, D[k]);
-            }
-            if (P['s'] < 0) return new Fraction(d, n);
-            return new Fraction(n, d);
-        },
-        /**
-     * Check if two rational numbers are the same
-     *
-     * Ex: new Fraction(19.6).equals([98, 5]);
-     **/ "equals": function(a, b) {
-            parse(a, b);
-            return this["s"] * this["n"] * P["d"] === P["s"] * P["n"] * this["d"]; // Same as compare() === 0
-        },
-        /**
-     * Check if two rational numbers are the same
-     *
-     * Ex: new Fraction(19.6).equals([98, 5]);
-     **/ "compare": function(a, b) {
-            parse(a, b);
-            var t = this["s"] * this["n"] * P["d"] - P["s"] * P["n"] * this["d"];
-            return (0 < t) - (t < 0);
-        },
-        "simplify": function(eps) {
-            // First naive implementation, needs improvement
-            if (isNaN(this['n']) || isNaN(this['d'])) return this;
-            var cont = this['abs']()['toContinued']();
-            eps = eps || 0.001;
-            function rec(a) {
-                if (a.length === 1) return new Fraction(a[0]);
-                return rec(a.slice(1))['inverse']()['add'](a[0]);
-            }
-            for(var i = 0; i < cont.length; i++){
-                var tmp = rec(cont.slice(0, i + 1));
-                if (tmp['sub'](this['abs']())['abs']().valueOf() < eps) return tmp['mul'](this['s']);
-            }
-            return this;
-        },
-        /**
-     * Check if two rational numbers are divisible
-     *
-     * Ex: new Fraction(19.6).divisible(1.5);
-     */ "divisible": function(a, b) {
-            parse(a, b);
-            return !(!(P["n"] * this["d"]) || this["n"] * P["d"] % (P["n"] * this["d"]));
-        },
-        /**
-     * Returns a decimal representation of the fraction
-     *
-     * Ex: new Fraction("100.'91823'").valueOf() => 100.91823918239183
-     **/ 'valueOf': function() {
-            return this["s"] * this["n"] / this["d"];
-        },
-        /**
-     * Returns a string-fraction representation of a Fraction object
-     *
-     * Ex: new Fraction("1.'3'").toFraction() => "4 1/3"
-     **/ 'toFraction': function(excludeWhole) {
-            var whole, str = "";
-            var n = this["n"];
-            var d = this["d"];
-            if (this["s"] < 0) str += '-';
-            if (d === 1) str += n;
-            else {
-                if (excludeWhole && (whole = Math.floor(n / d)) > 0) {
-                    str += whole;
-                    str += " ";
-                    n %= d;
-                }
-                str += n;
-                str += '/';
-                str += d;
-            }
-            return str;
-        },
-        /**
-     * Returns a latex representation of a Fraction object
-     *
-     * Ex: new Fraction("1.'3'").toLatex() => "\frac{4}{3}"
-     **/ 'toLatex': function(excludeWhole) {
-            var whole, str = "";
-            var n = this["n"];
-            var d = this["d"];
-            if (this["s"] < 0) str += '-';
-            if (d === 1) str += n;
-            else {
-                if (excludeWhole && (whole = Math.floor(n / d)) > 0) {
-                    str += whole;
-                    n %= d;
-                }
-                str += "\\frac{";
-                str += n;
-                str += '}{';
-                str += d;
-                str += '}';
-            }
-            return str;
-        },
-        /**
-     * Returns an array of continued fraction elements
-     *
-     * Ex: new Fraction("7/8").toContinued() => [0,1,7]
-     */ 'toContinued': function() {
-            var t;
-            var a = this['n'];
-            var b = this['d'];
-            var res = [];
-            if (isNaN(a) || isNaN(b)) return res;
-            do {
-                res.push(Math.floor(a / b));
-                t = a % b;
-                a = b;
-                b = t;
-            }while (a !== 1)
-            return res;
-        },
-        /**
-     * Creates a string representation of a fraction with all digits
-     *
-     * Ex: new Fraction("100.'91823'").toString() => "100.(91823)"
-     **/ 'toString': function(dec) {
-            var g;
-            var N = this["n"];
-            var D = this["d"];
-            if (isNaN(N) || isNaN(D)) return "NaN";
-            if (!Fraction['REDUCE']) {
-                g = gcd(N, D);
-                N /= g;
-                D /= g;
-            }
-            dec = dec || 15; // 15 = decimal places when no repetation
-            var cycLen = cycleLen(N, D); // Cycle length
-            var cycOff = cycleStart(N, D, cycLen); // Cycle start
-            var str = this['s'] === -1 ? "-" : "";
-            str += N / D | 0;
-            N %= D;
-            N *= 10;
-            if (N) str += ".";
-            if (cycLen) {
-                for(var i = cycOff; i--;){
-                    str += N / D | 0;
-                    N %= D;
-                    N *= 10;
-                }
-                str += "(";
-                for(var i = cycLen; i--;){
-                    str += N / D | 0;
-                    N %= D;
-                    N *= 10;
-                }
-                str += ")";
-            } else for(var i = dec; N && i--;){
-                str += N / D | 0;
-                N %= D;
-                N *= 10;
-            }
-            return str;
-        }
-    };
-    if (typeof define === "function" && define["amd"]) define([], function() {
-        return Fraction;
-    });
-    else if (typeof exports === "object") {
-        Object.defineProperty(Fraction, "__esModule", {
-            'value': true
-        });
-        Fraction['default'] = Fraction;
-        Fraction['Fraction'] = Fraction;
-        module['exports'] = Fraction;
-    } else root['Fraction'] = Fraction;
-})(this);
-
-},{}],"8rtS4":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "default", ()=>View
-);
-var _classCallCheck = require("@babel/runtime/helpers/classCallCheck");
-var _classCallCheckDefault = parcelHelpers.interopDefault(_classCallCheck);
-var _createClass = require("@babel/runtime/helpers/createClass");
-var _createClassDefault = parcelHelpers.interopDefault(_createClass);
-var _defineProperty = require("@babel/runtime/helpers/defineProperty");
-var _definePropertyDefault = parcelHelpers.interopDefault(_defineProperty);
-var _iconsSvg = require("url:../../img/icons.svg");
-var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
-var View = /*#__PURE__*/ function() {
-    function View1() {
-        _classCallCheckDefault.default(this, View1);
-        _definePropertyDefault.default(this, "_data", void 0);
-    }
-    _createClassDefault.default(View1, [
-        {
-            key: "_clearAndRender",
-            value: function _clearAndRender(markup) {
-                this._parentElement.innerHTML = '';
-                this._parentElement.insertAdjacentHTML('afterbegin', markup);
-            }
-        },
-        {
-            key: "render",
-            value: function render(data) {
-                if (!data || Array.isArray(data) && data.length === 0) return this.renderError();
-                this._data = data;
-                var markup = this._generateMarkup();
-                this._clearAndRender(markup);
-            }
-        },
-        {
-            key: "renderSpinner",
-            value: function renderSpinner() {
-                var markup = "\n\t  <div class=\"spinner\">\n\t\t<svg>\n\t\t  <use href=\"".concat(_iconsSvgDefault.default, "#icon-loader\"></use>\n\t\t</svg>\n\t  </div>\n\t");
-                this._clearAndRender(markup);
-            }
-        },
-        {
-            key: "renderError",
-            value: function renderError() {
-                var message = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this._errorMessage;
-                var markup = "\n\t\t\t<div class=\"error\">\n\t\t\t\t<div>\n\t\t\t\t\t<svg>\n\t\t\t\t\t\t<use href=\"".concat(_iconsSvgDefault.default, "#icon-alert-triangle\"></use>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<p>").concat(message, "</p>\n\t\t\t</div>\n\t  ");
-                this._clearAndRender(markup);
-            }
-        },
-        {
-            key: "renderMessage",
-            value: function renderMessage() {
-                var message = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this._message;
-                var markup = "\n\t\t\t<div class=\"message\">\n\t\t\t\t<div>\n\t\t\t\t\t<svg>\n\t\t\t\t\t\t<use href=\"".concat(_iconsSvgDefault.default, "#icon-smile\"></use>\n\t\t\t\t\t</svg>\n\t\t\t\t</div>\n\t\t\t\t<p>").concat(message, "</p>\n\t\t\t</div>\n\t  ");
-                this._clearAndRender(markup);
-            }
-        }
-    ]);
-    return View1;
-}();
-
-},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","@babel/runtime/helpers/createClass":"eFNXV","@babel/runtime/helpers/defineProperty":"eCMPI","url:../../img/icons.svg":"5XfTb"}],"eCMPI":[function(require,module,exports) {
-function _defineProperty(obj, key, value) {
-    if (key in obj) Object.defineProperty(obj, key, {
-        value: value,
-        enumerable: true,
-        configurable: true,
-        writable: true
-    });
-    else obj[key] = value;
-    return obj;
-}
-module.exports = _defineProperty;
-module.exports["default"] = module.exports, module.exports.__esModule = true;
-
-},{}],"k3YcS":[function(require,module,exports) {
-function _assertThisInitialized(self) {
-    if (self === void 0) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    return self;
-}
-module.exports = _assertThisInitialized;
-module.exports["default"] = module.exports, module.exports.__esModule = true;
-
-},{}],"8mpJg":[function(require,module,exports) {
-var setPrototypeOf = require("./setPrototypeOf.js");
-function _inherits(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) throw new TypeError("Super expression must either be null or a function");
-    subClass.prototype = Object.create(superClass && superClass.prototype, {
-        constructor: {
-            value: subClass,
-            writable: true,
-            configurable: true
-        }
-    });
-    if (superClass) setPrototypeOf(subClass, superClass);
-}
-module.exports = _inherits;
-module.exports["default"] = module.exports, module.exports.__esModule = true;
-
-},{"./setPrototypeOf.js":"2OSnG"}],"2OSnG":[function(require,module,exports) {
-function _setPrototypeOf(o, p) {
-    module.exports = _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf1(o1, p1) {
-        o1.__proto__ = p1;
-        return o1;
-    };
-    module.exports["default"] = module.exports, module.exports.__esModule = true;
-    return _setPrototypeOf(o, p);
-}
-module.exports = _setPrototypeOf;
-module.exports["default"] = module.exports, module.exports.__esModule = true;
-
-},{}],"iiXLy":[function(require,module,exports) {
-var _typeof = require("@babel/runtime/helpers/typeof")["default"];
-var assertThisInitialized = require("./assertThisInitialized.js");
-function _possibleConstructorReturn(self, call) {
-    if (call && (_typeof(call) === "object" || typeof call === "function")) return call;
-    return assertThisInitialized(self);
-}
-module.exports = _possibleConstructorReturn;
-module.exports["default"] = module.exports, module.exports.__esModule = true;
-
-},{"@babel/runtime/helpers/typeof":"1XGzZ","./assertThisInitialized.js":"k3YcS"}],"1XGzZ":[function(require,module,exports) {
-function _typeof(obj) {
-    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-        module.exports = _typeof = function _typeof1(obj1) {
-            return typeof obj1;
-        };
-        module.exports["default"] = module.exports, module.exports.__esModule = true;
-    } else {
-        module.exports = _typeof = function _typeof1(obj1) {
-            return obj1 && typeof Symbol === "function" && obj1.constructor === Symbol && obj1 !== Symbol.prototype ? "symbol" : typeof obj1;
-        };
-        module.exports["default"] = module.exports, module.exports.__esModule = true;
-    }
-    return _typeof(obj);
-}
-module.exports = _typeof;
-module.exports["default"] = module.exports, module.exports.__esModule = true;
-
-},{}],"DHhBk":[function(require,module,exports) {
-function _getPrototypeOf(o) {
-    module.exports = _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf1(o1) {
-        return o1.__proto__ || Object.getPrototypeOf(o1);
-    };
-    module.exports["default"] = module.exports, module.exports.__esModule = true;
-    return _getPrototypeOf(o);
-}
-module.exports = _getPrototypeOf;
-module.exports["default"] = module.exports, module.exports.__esModule = true;
-
-},{}],"51HTZ":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _classCallCheck = require("@babel/runtime/helpers/classCallCheck");
-var _classCallCheckDefault = parcelHelpers.interopDefault(_classCallCheck);
-var _createClass = require("@babel/runtime/helpers/createClass");
-var _createClassDefault = parcelHelpers.interopDefault(_createClass);
-var _defineProperty = require("@babel/runtime/helpers/defineProperty");
-var _definePropertyDefault = parcelHelpers.interopDefault(_defineProperty);
-var SearchView = /*#__PURE__*/ function() {
-    function SearchView1() {
-        _classCallCheckDefault.default(this, SearchView1);
-        _definePropertyDefault.default(this, "_parentElement", document.querySelector('.search'));
-    }
-    _createClassDefault.default(SearchView1, [
-        {
-            key: "getQuery",
-            value: function getQuery() {
-                var query = this._parentElement.querySelector('.search__field').value;
-                this._clearInput();
-                return query;
-            }
-        },
-        {
-            key: "_clearInput",
-            value: function _clearInput() {
-                this._parentElement.querySelector('.search__field').value = '';
-            }
-        },
-        {
-            key: "addHandlerSearch",
-            value: function addHandlerSearch(handler) {
-                this._parentElement.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    handler();
-                });
-            }
-        }
-    ]);
-    return SearchView1;
-}();
-exports.default = new SearchView();
-
-},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@babel/runtime/helpers/createClass":"eFNXV","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","@babel/runtime/helpers/defineProperty":"eCMPI"}],"a6WEO":[function(require,module,exports) {
+},{"../internals/export":"2mZbc"}],"c2v8w":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _classCallCheck = require("@babel/runtime/helpers/classCallCheck");
@@ -13799,39 +13901,52 @@ function _isNativeReflectConstruct() {
         return false;
     }
 }
-var ResultsView1 = /*#__PURE__*/ function(_View) {
-    _inheritsDefault.default(ResultsView2, _View);
-    var _super = _createSuper(ResultsView2);
-    function ResultsView2() {
+var PaginationView1 = /*#__PURE__*/ function(_View) {
+    _inheritsDefault.default(PaginationView2, _View);
+    var _super = _createSuper(PaginationView2);
+    function PaginationView2() {
         var _this;
-        _classCallCheckDefault.default(this, ResultsView2);
+        _classCallCheckDefault.default(this, PaginationView2);
         for(var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++)args[_key] = arguments[_key];
         _this = _super.call.apply(_super, [
             this
         ].concat(args));
-        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_parentElement", document.querySelector('.results'));
-        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_errorMessage", 'No recipes found for your query! Please try again');
-        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_message", '');
+        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_parentElement", document.querySelector('.pagination'));
         return _this;
     }
-    _createClassDefault.default(ResultsView2, [
+    _createClassDefault.default(PaginationView2, [
         {
-            key: "_generateMarkup",
-            value: function _generateMarkup() {
-                return this._data.map(this._generateMarkupPreview).join('');
+            key: "addHandlerClick",
+            value: function addHandlerClick(handler) {
+                this._parentElement.addEventListener('click', function(e) {
+                    var btn = e.target.closest('.btn--inline');
+                    if (!btn) return;
+                    var gotoPage = +btn.dataset["goto"];
+                    handler(gotoPage);
+                });
             }
         },
         {
-            key: "_generateMarkupPreview",
-            value: function _generateMarkupPreview(result) {
-                return "\n      <li class=\"preview\">\n        <a class=\"preview__link\" href=\"#".concat(result.id, "\">\n          <figure class=\"preview__fig\">\n            <img crossorigin src=\"").concat(result.image, "\" alt=\"").concat(result.title, "\" />\n          </figure>\n          <div class=\"preview__data\">\n            <h4 class=\"preview__title\">").concat(result.title, "</h4>\n            <p class=\"preview__publisher\">").concat(result.publisher, "</p>\n          </div>\n        </a>\n      </li>\n    ");
+            key: "_generateMarkup",
+            value: function _generateMarkup() {
+                var currentPage = this._data.page;
+                var numPages = Math.ceil(this._data.results.length / this._data.resultsPerPage);
+                var nextBtn = "\n\t\t\t<button data-goto=\"".concat(currentPage + 1, "\" class=\"btn--inline pagination__btn--next\">\n\t\t\t\t<span>Page ").concat(currentPage + 1, "</span>\n\t\t\t\t<svg class=\"search__icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-arrow-right\"></use>\n\t\t\t\t</svg>\n\t\t\t</button>\n\t\t");
+                var prevBtn = "\n\t\t\t<button data-goto=\"".concat(currentPage - 1, "\" class=\"btn--inline pagination__btn--prev\">\n\t\t\t\t<svg class=\"search__icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-arrow-left\"></use>\n\t\t\t\t</svg>\n\t\t\t\t<span>Page ").concat(currentPage - 1, "</span>\n\t\t\t</button>\n\t\t"); // Page 1 of multiple
+                if (currentPage === 1 && numPages > 1) return nextBtn;
+                 // Last page
+                if (currentPage === numPages && numPages > 1) return prevBtn;
+                 // Other page
+                if (currentPage < numPages) return "".concat(prevBtn).concat(nextBtn);
+                 // Page 1 of 1
+                return '';
             }
         }
     ]);
-    return ResultsView2;
+    return PaginationView2;
 }(_viewDefault.default);
-exports.default = new ResultsView1();
+exports.default = new PaginationView1();
 
-},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@babel/runtime/helpers/assertThisInitialized":"k3YcS","@babel/runtime/helpers/inherits":"8mpJg","@babel/runtime/helpers/possibleConstructorReturn":"iiXLy","@babel/runtime/helpers/getPrototypeOf":"DHhBk","./View":"8rtS4","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","@babel/runtime/helpers/defineProperty":"eCMPI","@babel/runtime/helpers/createClass":"eFNXV","url:../../img/icons.svg":"5XfTb"}]},["0xcHD","jKMjS"], "jKMjS", "parcelRequire6d3a")
+},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@babel/runtime/helpers/createClass":"eFNXV","@babel/runtime/helpers/assertThisInitialized":"k3YcS","@babel/runtime/helpers/inherits":"8mpJg","@babel/runtime/helpers/possibleConstructorReturn":"iiXLy","@babel/runtime/helpers/getPrototypeOf":"DHhBk","@babel/runtime/helpers/defineProperty":"eCMPI","./View":"8rtS4","url:../../img/icons.svg":"5XfTb","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}]},["0xcHD","jKMjS"], "jKMjS", "parcelRequire6d3a")
 
 //# sourceMappingURL=index.436439df.js.map
