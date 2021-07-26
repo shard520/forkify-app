@@ -37,6 +37,9 @@ export const loadSearchResults = async function (query) {
   try {
     state.search.query = query;
 
+    // Reset page number in case of new query when user has existing search results displaying after page 1
+    state.search.page = 1;
+
     const data = await getJSON(`${API_URL}?search=${query}`);
 
     state.search.results = data.data.recipes.map(recipe => {
@@ -60,4 +63,12 @@ export const getSearchResultsPage = function (page = state.search.page) {
   const end = page * state.search.resultsPerPage;
 
   return state.search.results.slice(start, end);
+};
+
+export const updateServings = function (newServings) {
+  state.recipe.ingredients.forEach(ing => {
+    ing.quantity = (ing.quantity * newServings) / state.recipe.servings;
+  });
+
+  state.recipe.servings = newServings;
 };
