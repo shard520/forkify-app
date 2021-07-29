@@ -417,23 +417,22 @@ var controlRecipes = /*#__PURE__*/ function() {
                     return _model.loadRecipe(id);
                 case 7:
                     // 2) Rendering recipe
-                    console.log(_model.state.recipe);
                     _recipeViewDefault.default.render(_model.state.recipe);
-                    _context.next = 15;
+                    _context.next = 14;
                     break;
-                case 11:
-                    _context.prev = 11;
+                case 10:
+                    _context.prev = 10;
                     _context.t0 = _context["catch"](4);
                     console.error("\uD83D\uDCA5\uD83D\uDCA5 ".concat(_context.t0));
                     _recipeViewDefault.default.renderError();
-                case 15:
+                case 14:
                 case "end":
                     return _context.stop();
             }
         }, _callee, null, [
             [
                 4,
-                11
+                10
             ]
         ]);
     }));
@@ -491,8 +490,8 @@ var controlPagination = function controlPagination1(pageNum) {
 };
 var controlServings = function controlServings1(newServings) {
     // Update recipe servings in state
-    _model.updateServings(newServings); // update recipe view
-    _recipeViewDefault.default.render(_model.state.recipe);
+    _model.updateServings(newServings); // Update recipe view
+    _recipeViewDefault.default.update(_model.state.recipe);
 };
 var init = function init1() {
     _recipeViewDefault.default.addHandlerRender(controlRecipes);
@@ -1597,6 +1596,29 @@ var View = /*#__PURE__*/ function() {
                 this._data = data;
                 var markup = this._generateMarkup();
                 this._clearAndRender(markup);
+            }
+        },
+        {
+            key: "update",
+            value: function update(data) {
+                if (!data || Array.isArray(data) && data.length === 0) return this.renderError();
+                this._data = data;
+                var newMarkup = this._generateMarkup();
+                var newDOM = document.createRange().createContextualFragment(newMarkup);
+                var newElements = Array.from(newDOM.querySelectorAll('*'));
+                var currentElements = Array.from(this._parentElement.querySelectorAll('*'));
+                console.log(currentElements);
+                console.log(newElements);
+                newElements.forEach(function(newEl, i) {
+                    var _newEl$firstChild;
+                    var curEl = currentElements[i];
+                    console.log(curEl, newEl.isEqualNode(curEl)); // Update changed text
+                    if (!newEl.isEqualNode(curEl) && ((_newEl$firstChild = newEl.firstChild) === null || _newEl$firstChild === void 0 ? void 0 : _newEl$firstChild.nodeValue.trim()) !== '') curEl.textContent = newEl.textContent;
+                     // Update changed attributes
+                    if (!newEl.isEqualNode(curEl)) Array.from(newEl.attributes).forEach(function(attr) {
+                        return curEl.setAttribute(attr.name, attr.value);
+                    });
+                });
             }
         },
         {
