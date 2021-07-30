@@ -394,6 +394,8 @@ var _resultsView = require("./views/resultsView");
 var _resultsViewDefault = parcelHelpers.interopDefault(_resultsView);
 var _paginationView = require("./views/paginationView");
 var _paginationViewDefault = parcelHelpers.interopDefault(_paginationView);
+var _bookmarksView = require("./views/bookmarksView");
+var _bookmarksViewDefault = parcelHelpers.interopDefault(_bookmarksView);
 var _stable = require("core-js/stable");
 var _runtime = require("regenerator-runtime/runtime"); // if (module.hot) {
 //   module.hot.accept();
@@ -411,28 +413,31 @@ var controlRecipes = /*#__PURE__*/ function() {
                     }
                     return _context.abrupt("return");
                 case 3:
+                    // 1) Update results and bookmarks view to add selected class to results/bookmarks
+                    _resultsViewDefault.default.update(_model.getSearchResultsPage());
+                    _bookmarksViewDefault.default.update(_model.state.bookmarks); // 2} Render loading spinner
                     _recipeViewDefault.default.renderSpinner();
-                    _context.prev = 4;
-                    _context.next = 7;
+                    _context.prev = 6;
+                    _context.next = 9;
                     return _model.loadRecipe(id);
-                case 7:
-                    // 2) Rendering recipe
+                case 9:
+                    // 4) Rendering recipe
                     _recipeViewDefault.default.render(_model.state.recipe);
-                    _context.next = 14;
+                    _context.next = 16;
                     break;
-                case 10:
-                    _context.prev = 10;
-                    _context.t0 = _context["catch"](4);
+                case 12:
+                    _context.prev = 12;
+                    _context.t0 = _context["catch"](6);
                     console.error("\uD83D\uDCA5\uD83D\uDCA5 ".concat(_context.t0));
                     _recipeViewDefault.default.renderError();
-                case 14:
+                case 16:
                 case "end":
                     return _context.stop();
             }
         }, _callee, null, [
             [
-                4,
-                10
+                6,
+                12
             ]
         ]);
     }));
@@ -455,12 +460,13 @@ var controlSearchResults = /*#__PURE__*/ function() {
                     }
                     return _context2.abrupt("return");
                 case 4:
-                    _resultsViewDefault.default.renderSpinner(); // 2) Load search results
+                    // 2) Render loading spinner
+                    _resultsViewDefault.default.renderSpinner(); // 3) Load search results
                     _context2.next = 7;
                     return _model.loadSearchResults(query);
                 case 7:
-                    // 3} Render search results
-                    _resultsViewDefault.default.render(_model.getSearchResultsPage()); // 4) Render initial pagination views
+                    // 4) Render search results on page 1
+                    _resultsViewDefault.default.render(_model.getSearchResultsPage(1)); // 5) Render initial pagination views
                     _paginationViewDefault.default.render(_model.state.search);
                     _context2.next = 14;
                     break;
@@ -484,24 +490,32 @@ var controlSearchResults = /*#__PURE__*/ function() {
     };
 }();
 var controlPagination = function controlPagination1(pageNum) {
-    // 1} Render new search results
+    // 1) Render new search results
     _resultsViewDefault.default.render(_model.getSearchResultsPage(pageNum)); // 2) Render new pagination views
     _paginationViewDefault.default.render(_model.state.search);
 };
 var controlServings = function controlServings1(newServings) {
-    // Update recipe servings in state
-    _model.updateServings(newServings); // Update recipe view
+    // 1) Update recipe servings in state
+    _model.updateServings(newServings); // 2) Update recipe view
     _recipeViewDefault.default.update(_model.state.recipe);
+};
+var controlAddBookmark = function controlAddBookmark1() {
+    // 1) Add or remove bookmark
+    if (!_model.state.recipe.bookmarked) _model.addBookmark(_model.state.recipe);
+    else _model.deleteBookmark(_model.state.recipe.id); // 2) Change bookmark icon in recipeView
+    _recipeViewDefault.default.update(_model.state.recipe); // 3) Render bookmarks
+    _bookmarksViewDefault.default.render(_model.state.bookmarks);
 };
 var init = function init1() {
     _recipeViewDefault.default.addHandlerRender(controlRecipes);
     _recipeViewDefault.default.addHandlerUpdateServings(controlServings);
+    _recipeViewDefault.default.addHandlerAddBookmark(controlAddBookmark);
     _searchViewDefault.default.addHandlerSearch(controlSearchResults);
     _paginationViewDefault.default.addHandlerClick(controlPagination);
 };
 init();
 
-},{"@babel/runtime/helpers/asyncToGenerator":"5j50L","@babel/runtime/regenerator":"1L3WO","./model":"6Yfb5","./views/recipeView":"9q0mt","./views/searchView":"51HTZ","./views/resultsView":"a6WEO","core-js/stable":"eIyVg","regenerator-runtime/runtime":"cH8Iq","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","./views/paginationView":"c2v8w"}],"5j50L":[function(require,module,exports) {
+},{"@babel/runtime/helpers/asyncToGenerator":"5j50L","@babel/runtime/regenerator":"1L3WO","./model":"6Yfb5","./views/recipeView":"9q0mt","./views/searchView":"51HTZ","./views/resultsView":"a6WEO","core-js/stable":"eIyVg","regenerator-runtime/runtime":"cH8Iq","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","./views/paginationView":"c2v8w","./views/bookmarksView":"cUfi0"}],"5j50L":[function(require,module,exports) {
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
     try {
         var info = gen[key](arg);
@@ -1124,6 +1138,10 @@ parcelHelpers.export(exports, "getSearchResultsPage", ()=>getSearchResultsPage
 );
 parcelHelpers.export(exports, "updateServings", ()=>updateServings
 );
+parcelHelpers.export(exports, "addBookmark", ()=>addBookmark
+);
+parcelHelpers.export(exports, "deleteBookmark", ()=>deleteBookmark
+);
 var _asyncToGenerator = require("@babel/runtime/helpers/asyncToGenerator");
 var _asyncToGeneratorDefault = parcelHelpers.interopDefault(_asyncToGenerator);
 var _regenerator = require("@babel/runtime/regenerator");
@@ -1138,7 +1156,8 @@ var state = {
         results: [],
         resultsPerPage: _config.RES_PER_PAGE,
         page: 1
-    }
+    },
+    bookmarks: []
 };
 var loadRecipe = /*#__PURE__*/ function() {
     var _ref = _asyncToGeneratorDefault.default(/*#__PURE__*/ _regeneratorDefault.default.mark(function _callee(id) {
@@ -1161,22 +1180,25 @@ var loadRecipe = /*#__PURE__*/ function() {
                         servings: recipe.servings,
                         cookingTime: recipe.cooking_time,
                         ingredients: recipe.ingredients
-                    };
-                    _context.next = 12;
+                    }; // Set bookmarked to true or false depending on if this recipe exists in bookmarks
+                    state.recipe.bookmarked = state.bookmarks.some(function(bookmark) {
+                        return bookmark.id === id;
+                    });
+                    _context.next = 13;
                     break;
-                case 8:
-                    _context.prev = 8;
+                case 9:
+                    _context.prev = 9;
                     _context.t0 = _context["catch"](0);
                     console.error("\uD83D\uDCA5\uD83D\uDCA5 ".concat(_context.t0));
                     throw _context.t0;
-                case 12:
+                case 13:
                 case "end":
                     return _context.stop();
             }
         }, _callee, null, [
             [
                 0,
-                8
+                9
             ]
         ]);
     }));
@@ -1191,11 +1213,10 @@ var loadSearchResults = /*#__PURE__*/ function() {
             while(true)switch(_context2.prev = _context2.next){
                 case 0:
                     _context2.prev = 0;
-                    state.search.query = query; // Reset page number in case of new query when user has existing search results displaying after page 1
-                    state.search.page = 1;
-                    _context2.next = 5;
+                    state.search.query = query;
+                    _context2.next = 4;
                     return _helpers.getJSON("".concat(_config.API_URL, "?search=").concat(query));
-                case 5:
+                case 4:
                     data = _context2.sent;
                     state.search.results = data.data.recipes.map(function(recipe) {
                         return {
@@ -1205,21 +1226,21 @@ var loadSearchResults = /*#__PURE__*/ function() {
                             image: recipe.image_url
                         };
                     });
-                    _context2.next = 13;
+                    _context2.next = 12;
                     break;
-                case 9:
-                    _context2.prev = 9;
+                case 8:
+                    _context2.prev = 8;
                     _context2.t0 = _context2["catch"](0);
                     console.error("\uD83D\uDCA5\uD83D\uDCA5 ".concat(_context2.t0));
                     throw _context2.t0;
-                case 13:
+                case 12:
                 case "end":
                     return _context2.stop();
             }
         }, _callee2, null, [
             [
                 0,
-                9
+                8
             ]
         ]);
     }));
@@ -1239,6 +1260,19 @@ var updateServings = function updateServings1(newServings) {
         ing.quantity = ing.quantity * newServings / state.recipe.servings;
     });
     state.recipe.servings = newServings;
+};
+var addBookmark = function addBookmark1(recipe) {
+    // Add bookmark
+    state.bookmarks.push(recipe); // Mark current recipe as bookmark
+    state.recipe.bookmarked = true;
+};
+var deleteBookmark = function deleteBookmark1(id) {
+    // Delete bookmark
+    var index = state.bookmarks.findIndex(function(el) {
+        return el.id === id;
+    });
+    state.bookmarks.splice(index, 1); // Mark current recipe as not bookmarked
+    state.recipe.bookmarked = false;
 };
 
 },{"@babel/runtime/helpers/asyncToGenerator":"5j50L","@babel/runtime/regenerator":"1L3WO","./config":"beA2m","./helpers":"9l3Yy","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}],"beA2m":[function(require,module,exports) {
@@ -1433,9 +1467,20 @@ var RecipeView1 = /*#__PURE__*/ function(_View) {
             }
         },
         {
+            key: "addHandlerAddBookmark",
+            value: function addHandlerAddBookmark(handler) {
+                this._parentElement.addEventListener('click', function(e) {
+                    var btn = e.target.closest('.btn--bookmark');
+                    if (!btn) return;
+                    handler();
+                });
+            }
+        },
+        {
             key: "_generateMarkup",
             value: function _generateMarkup() {
-                return "\n\t\t<figure class=\"recipe__fig\">\n\t\t\t<img src=\"".concat(this._data.image, "\" alt=\"").concat(this._data.title, "\" class=\"recipe__img\" crossorigin/>\n\t\t\t<h1 class=\"recipe__title\">\n\t\t\t\t<span>").concat(this._data.title, "</span>\n\t\t\t</h1>\n\t\t</figure>\n\n\t\t<div class=\"recipe__details\">\n\t\t\t<div class=\"recipe__info\">\n\t\t\t\t<svg class=\"recipe__info-icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-clock\"></use>\n\t\t\t\t</svg>\n\t\t\t\t<span class=\"recipe__info-data recipe__info-data--minutes\">").concat(this._data.cookingTime, "</span>\n\t\t\t\t<span class=\"recipe__info-text\">minutes</span>\n\t\t\t</div>\n\t\t\t<div class=\"recipe__info\">\n\t\t\t\t<svg class=\"recipe__info-icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-users\"></use>\n\t\t\t\t</svg>\n\t\t\t\t<span class=\"recipe__info-data recipe__info-data--people\">").concat(this._data.servings, "</span>\n\t\t\t\t<span class=\"recipe__info-text\">").concat(this._data.servings === 1 ? 'serving' : 'servings', "</span>\n\n\t\t\t\t<div class=\"recipe__info-buttons\">\n\t\t\t\t\t<button class=\"btn--tiny btn--update-servings\" data-update-to=\"").concat(this._data.servings - 1, "\">\n\t\t\t\t\t\t<svg>\n\t\t\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-minus-circle\"></use>\n\t\t\t\t\t\t</svg>\n\t\t\t\t\t</button>\n\t\t\t\t\t<button class=\"btn--tiny btn--update-servings\" data-update-to=\"").concat(this._data.servings + 1, "\">\n\t\t\t\t\t\t<svg>\n\t\t\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-plus-circle\"></use>\n\t\t\t\t\t\t</svg>\n\t\t\t\t\t</button>\n\t\t\t\t</div>\n\t\t\t</div>\n\n\t\t\t<div class=\"recipe__user-generated\">\n\t\t\t\t\n\t\t\t</div>\n\t\t\t<button class=\"btn--round\">\n\t\t\t\t<svg class=\"\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-bookmark-fill\"></use>\n\t\t\t\t</svg>\n\t\t\t</button>\n\t\t</div>\n\n\t\t<div class=\"recipe__ingredients\">\n\t\t\t<h2 class=\"heading--2\">Recipe ingredients</h2>\n\t\t\t<ul class=\"recipe__ingredient-list\">\n\t\t\t\t").concat(this._data.ingredients.map(this._generateMarkupIngredient).join(' '), "\n\t\t\t</ul>\n\t\t</div>\n\t\n\t\t<div class=\"recipe__directions\">\n\t\t\t<h2 class=\"heading--2\">How to cook it</h2>\n\t\t\t<p class=\"recipe__directions-text\">\n\t\t\t\tThis recipe was carefully designed and tested by\n\t\t\t\t<span class=\"recipe__publisher\">").concat(this._data.publisher, "</span>. Please check out\n\t\t\t\tdirections at their website.\n\t\t\t</p>\n\t\t\t<a\n\t\t\t\tclass=\"btn--small recipe__btn\"\n\t\t\t\thref=\"").concat(this._data.sourceUrl, "\"\n\t\t\t\ttarget=\"_blank\"\n\t\t\t>\n\t\t\t\t<span>Directions</span>\n\t\t\t\t<svg class=\"search__icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-arrow-right\"></use>\n\t\t\t\t</svg>\n\t\t\t</a>\n\t\t</div>\n\t");
+                var _this$_data;
+                return "\n\t\t<figure class=\"recipe__fig\">\n\t\t\t<img src=\"".concat(this._data.image, "\" alt=\"").concat(this._data.title, "\" class=\"recipe__img\" crossorigin/>\n\t\t\t<h1 class=\"recipe__title\">\n\t\t\t\t<span>").concat(this._data.title, "</span>\n\t\t\t</h1>\n\t\t</figure>\n\n\t\t<div class=\"recipe__details\">\n\t\t\t<div class=\"recipe__info\">\n\t\t\t\t<svg class=\"recipe__info-icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-clock\"></use>\n\t\t\t\t</svg>\n\t\t\t\t<span class=\"recipe__info-data recipe__info-data--minutes\">").concat(this._data.cookingTime, "</span>\n\t\t\t\t<span class=\"recipe__info-text\">minutes</span>\n\t\t\t</div>\n\t\t\t<div class=\"recipe__info\">\n\t\t\t\t<svg class=\"recipe__info-icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-users\"></use>\n\t\t\t\t</svg>\n\t\t\t\t<span class=\"recipe__info-data recipe__info-data--people\">").concat(this._data.servings, "</span>\n\t\t\t\t<span class=\"recipe__info-text\">").concat(this._data.servings === 1 ? 'serving' : 'servings', "</span>\n\n\t\t\t\t<div class=\"recipe__info-buttons\">\n\t\t\t\t\t<button class=\"btn--tiny btn--update-servings\" data-update-to=\"").concat(this._data.servings - 1, "\">\n\t\t\t\t\t\t<svg>\n\t\t\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-minus-circle\"></use>\n\t\t\t\t\t\t</svg>\n\t\t\t\t\t</button>\n\t\t\t\t\t<button class=\"btn--tiny btn--update-servings\" data-update-to=\"").concat(this._data.servings + 1, "\">\n\t\t\t\t\t\t<svg>\n\t\t\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-plus-circle\"></use>\n\t\t\t\t\t\t</svg>\n\t\t\t\t\t</button>\n\t\t\t\t</div>\n\t\t\t</div>\n\n\t\t\t<div class=\"recipe__user-generated\">\n\t\t\t\t\n\t\t\t</div>\n\t\t\t<button class=\"btn--round btn--bookmark\">\n\t\t\t\t<svg class=\"\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-bookmark").concat((_this$_data = this._data) !== null && _this$_data !== void 0 && _this$_data.bookmarked ? '-fill' : '', "\"></use>\n\t\t\t\t</svg>\n\t\t\t</button>\n\t\t</div>\n\n\t\t<div class=\"recipe__ingredients\">\n\t\t\t<h2 class=\"heading--2\">Recipe ingredients</h2>\n\t\t\t<ul class=\"recipe__ingredient-list\">\n\t\t\t\t").concat(this._data.ingredients.map(this._generateMarkupIngredient).join(' '), "\n\t\t\t</ul>\n\t\t</div>\n\t\n\t\t<div class=\"recipe__directions\">\n\t\t\t<h2 class=\"heading--2\">How to cook it</h2>\n\t\t\t<p class=\"recipe__directions-text\">\n\t\t\t\tThis recipe was carefully designed and tested by\n\t\t\t\t<span class=\"recipe__publisher\">").concat(this._data.publisher, "</span>. Please check out\n\t\t\t\tdirections at their website.\n\t\t\t</p>\n\t\t\t<a\n\t\t\t\tclass=\"btn--small recipe__btn\"\n\t\t\t\thref=\"").concat(this._data.sourceUrl, "\"\n\t\t\t\ttarget=\"_blank\"\n\t\t\t>\n\t\t\t\t<span>Directions</span>\n\t\t\t\t<svg class=\"search__icon\">\n\t\t\t\t\t<use href=\"").concat(_iconsSvgDefault.default, "#icon-arrow-right\"></use>\n\t\t\t\t</svg>\n\t\t\t</a>\n\t\t</div>\n\t");
             }
         },
         {
@@ -1592,27 +1637,25 @@ var View = /*#__PURE__*/ function() {
         {
             key: "render",
             value: function render(data) {
+                var _render = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
                 if (!data || Array.isArray(data) && data.length === 0) return this.renderError();
                 this._data = data;
                 var markup = this._generateMarkup();
+                if (!_render) return markup;
                 this._clearAndRender(markup);
             }
         },
         {
             key: "update",
             value: function update(data) {
-                if (!data || Array.isArray(data) && data.length === 0) return this.renderError();
                 this._data = data;
                 var newMarkup = this._generateMarkup();
                 var newDOM = document.createRange().createContextualFragment(newMarkup);
                 var newElements = Array.from(newDOM.querySelectorAll('*'));
                 var currentElements = Array.from(this._parentElement.querySelectorAll('*'));
-                console.log(currentElements);
-                console.log(newElements);
                 newElements.forEach(function(newEl, i) {
                     var _newEl$firstChild;
-                    var curEl = currentElements[i];
-                    console.log(curEl, newEl.isEqualNode(curEl)); // Update changed text
+                    var curEl = currentElements[i]; // Update changed text
                     if (!newEl.isEqualNode(curEl) && ((_newEl$firstChild = newEl.firstChild) === null || _newEl$firstChild === void 0 ? void 0 : _newEl$firstChild.nodeValue.trim()) !== '') curEl.textContent = newEl.textContent;
                      // Update changed attributes
                     if (!newEl.isEqualNode(curEl)) Array.from(newEl.attributes).forEach(function(attr) {
@@ -2352,6 +2395,8 @@ var _defineProperty = require("@babel/runtime/helpers/defineProperty");
 var _definePropertyDefault = parcelHelpers.interopDefault(_defineProperty);
 var _view = require("./View");
 var _viewDefault = parcelHelpers.interopDefault(_view);
+var _previewView = require("./previewView");
+var _previewViewDefault = parcelHelpers.interopDefault(_previewView);
 var _iconsSvg = require("url:../../img/icons.svg");
 var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
 function _createSuper(Derived) {
@@ -2396,19 +2441,85 @@ var ResultsView1 = /*#__PURE__*/ function(_View) {
         {
             key: "_generateMarkup",
             value: function _generateMarkup() {
-                return this._data.map(this._generateMarkupPreview).join('');
-            }
-        },
-        {
-            key: "_generateMarkupPreview",
-            value: function _generateMarkupPreview(result) {
-                return "\n      <li class=\"preview\">\n        <a class=\"preview__link\" href=\"#".concat(result.id, "\">\n          <figure class=\"preview__fig\">\n            <img crossorigin src=\"").concat(result.image, "\" alt=\"").concat(result.title, "\" />\n          </figure>\n          <div class=\"preview__data\">\n            <h4 class=\"preview__title\">").concat(result.title, "</h4>\n            <p class=\"preview__publisher\">").concat(result.publisher, "</p>\n          </div>\n        </a>\n      </li>\n    ");
+                return this._data.map(function(result) {
+                    return _previewViewDefault.default.render(result, false);
+                }).join('');
             }
         }
     ]);
     return ResultsView2;
 }(_viewDefault.default);
 exports.default = new ResultsView1();
+
+},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@babel/runtime/helpers/createClass":"eFNXV","@babel/runtime/helpers/assertThisInitialized":"k3YcS","@babel/runtime/helpers/inherits":"8mpJg","@babel/runtime/helpers/possibleConstructorReturn":"iiXLy","@babel/runtime/helpers/getPrototypeOf":"DHhBk","@babel/runtime/helpers/defineProperty":"eCMPI","./View":"8rtS4","url:../../img/icons.svg":"5XfTb","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","./previewView":"knRyY"}],"knRyY":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _classCallCheck = require("@babel/runtime/helpers/classCallCheck");
+var _classCallCheckDefault = parcelHelpers.interopDefault(_classCallCheck);
+var _createClass = require("@babel/runtime/helpers/createClass");
+var _createClassDefault = parcelHelpers.interopDefault(_createClass);
+var _assertThisInitialized = require("@babel/runtime/helpers/assertThisInitialized");
+var _assertThisInitializedDefault = parcelHelpers.interopDefault(_assertThisInitialized);
+var _inherits = require("@babel/runtime/helpers/inherits");
+var _inheritsDefault = parcelHelpers.interopDefault(_inherits);
+var _possibleConstructorReturn = require("@babel/runtime/helpers/possibleConstructorReturn");
+var _possibleConstructorReturnDefault = parcelHelpers.interopDefault(_possibleConstructorReturn);
+var _getPrototypeOf = require("@babel/runtime/helpers/getPrototypeOf");
+var _getPrototypeOfDefault = parcelHelpers.interopDefault(_getPrototypeOf);
+var _defineProperty = require("@babel/runtime/helpers/defineProperty");
+var _definePropertyDefault = parcelHelpers.interopDefault(_defineProperty);
+var _view = require("./View");
+var _viewDefault = parcelHelpers.interopDefault(_view);
+var _iconsSvg = require("url:../../img/icons.svg");
+var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
+function _createSuper(Derived) {
+    var hasNativeReflectConstruct = _isNativeReflectConstruct();
+    return function _createSuperInternal() {
+        var Super = _getPrototypeOfDefault.default(Derived), result;
+        if (hasNativeReflectConstruct) {
+            var NewTarget = _getPrototypeOfDefault.default(this).constructor;
+            result = Reflect.construct(Super, arguments, NewTarget);
+        } else result = Super.apply(this, arguments);
+        return _possibleConstructorReturnDefault.default(this, result);
+    };
+}
+function _isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+        Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+        }));
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+var PreviewView1 = /*#__PURE__*/ function(_View) {
+    _inheritsDefault.default(PreviewView2, _View);
+    var _super = _createSuper(PreviewView2);
+    function PreviewView2() {
+        var _this;
+        _classCallCheckDefault.default(this, PreviewView2);
+        for(var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++)args[_key] = arguments[_key];
+        _this = _super.call.apply(_super, [
+            this
+        ].concat(args));
+        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_parentElement", '');
+        return _this;
+    }
+    _createClassDefault.default(PreviewView2, [
+        {
+            key: "_generateMarkup",
+            value: function _generateMarkup() {
+                var id = window.location.hash.slice(1);
+                return "\n      <li class=\"preview\">\n        <a class=\"preview__link ".concat(this._data.id === id ? 'preview__link--active' : '', "\" href=\"#").concat(this._data.id, "\">\n          <figure class=\"preview__fig\">\n            <img crossorigin src=\"").concat(this._data.image, "\" alt=\"").concat(this._data.title, "\" />\n          </figure>\n          <div class=\"preview__data\">\n            <h4 class=\"preview__title\">").concat(this._data.title, "</h4>\n            <p class=\"preview__publisher\">").concat(this._data.publisher, "</p>\n          </div>\n        </a>\n      </li>\n    ");
+            }
+        }
+    ]);
+    return PreviewView2;
+}(_viewDefault.default);
+exports.default = new PreviewView1();
 
 },{"@babel/runtime/helpers/classCallCheck":"fIqcI","@babel/runtime/helpers/createClass":"eFNXV","@babel/runtime/helpers/assertThisInitialized":"k3YcS","@babel/runtime/helpers/inherits":"8mpJg","@babel/runtime/helpers/possibleConstructorReturn":"iiXLy","@babel/runtime/helpers/getPrototypeOf":"DHhBk","@babel/runtime/helpers/defineProperty":"eCMPI","./View":"8rtS4","url:../../img/icons.svg":"5XfTb","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}],"eIyVg":[function(require,module,exports) {
 require('../modules/es.symbol');
@@ -13996,6 +14107,81 @@ var PaginationView1 = /*#__PURE__*/ function(_View) {
 }(_viewDefault.default);
 exports.default = new PaginationView1();
 
-},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@babel/runtime/helpers/createClass":"eFNXV","@babel/runtime/helpers/assertThisInitialized":"k3YcS","@babel/runtime/helpers/inherits":"8mpJg","@babel/runtime/helpers/possibleConstructorReturn":"iiXLy","@babel/runtime/helpers/getPrototypeOf":"DHhBk","@babel/runtime/helpers/defineProperty":"eCMPI","./View":"8rtS4","url:../../img/icons.svg":"5XfTb","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}]},["0xcHD","jKMjS"], "jKMjS", "parcelRequire6d3a")
+},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@babel/runtime/helpers/createClass":"eFNXV","@babel/runtime/helpers/assertThisInitialized":"k3YcS","@babel/runtime/helpers/inherits":"8mpJg","@babel/runtime/helpers/possibleConstructorReturn":"iiXLy","@babel/runtime/helpers/getPrototypeOf":"DHhBk","@babel/runtime/helpers/defineProperty":"eCMPI","./View":"8rtS4","url:../../img/icons.svg":"5XfTb","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}],"cUfi0":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _classCallCheck = require("@babel/runtime/helpers/classCallCheck");
+var _classCallCheckDefault = parcelHelpers.interopDefault(_classCallCheck);
+var _createClass = require("@babel/runtime/helpers/createClass");
+var _createClassDefault = parcelHelpers.interopDefault(_createClass);
+var _assertThisInitialized = require("@babel/runtime/helpers/assertThisInitialized");
+var _assertThisInitializedDefault = parcelHelpers.interopDefault(_assertThisInitialized);
+var _inherits = require("@babel/runtime/helpers/inherits");
+var _inheritsDefault = parcelHelpers.interopDefault(_inherits);
+var _possibleConstructorReturn = require("@babel/runtime/helpers/possibleConstructorReturn");
+var _possibleConstructorReturnDefault = parcelHelpers.interopDefault(_possibleConstructorReturn);
+var _getPrototypeOf = require("@babel/runtime/helpers/getPrototypeOf");
+var _getPrototypeOfDefault = parcelHelpers.interopDefault(_getPrototypeOf);
+var _defineProperty = require("@babel/runtime/helpers/defineProperty");
+var _definePropertyDefault = parcelHelpers.interopDefault(_defineProperty);
+var _view = require("./View");
+var _viewDefault = parcelHelpers.interopDefault(_view);
+var _previewView = require("./previewView");
+var _previewViewDefault = parcelHelpers.interopDefault(_previewView);
+var _iconsSvg = require("url:../../img/icons.svg");
+var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
+function _createSuper(Derived) {
+    var hasNativeReflectConstruct = _isNativeReflectConstruct();
+    return function _createSuperInternal() {
+        var Super = _getPrototypeOfDefault.default(Derived), result;
+        if (hasNativeReflectConstruct) {
+            var NewTarget = _getPrototypeOfDefault.default(this).constructor;
+            result = Reflect.construct(Super, arguments, NewTarget);
+        } else result = Super.apply(this, arguments);
+        return _possibleConstructorReturnDefault.default(this, result);
+    };
+}
+function _isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+    try {
+        Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+        }));
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+var BookmarksView1 = /*#__PURE__*/ function(_View) {
+    _inheritsDefault.default(BookmarksView2, _View);
+    var _super = _createSuper(BookmarksView2);
+    function BookmarksView2() {
+        var _this;
+        _classCallCheckDefault.default(this, BookmarksView2);
+        for(var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++)args[_key] = arguments[_key];
+        _this = _super.call.apply(_super, [
+            this
+        ].concat(args));
+        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_parentElement", document.querySelector('.bookmarks__list'));
+        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_errorMessage", 'No bookmarks yet. Find a nice recipe and bookmark it.');
+        _definePropertyDefault.default(_assertThisInitializedDefault.default(_this), "_message", '');
+        return _this;
+    }
+    _createClassDefault.default(BookmarksView2, [
+        {
+            key: "_generateMarkup",
+            value: function _generateMarkup() {
+                return this._data.map(function(bookmark) {
+                    return _previewViewDefault.default.render(bookmark, false);
+                }).join('');
+            }
+        }
+    ]);
+    return BookmarksView2;
+}(_viewDefault.default);
+exports.default = new BookmarksView1();
+
+},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@babel/runtime/helpers/createClass":"eFNXV","@babel/runtime/helpers/assertThisInitialized":"k3YcS","@babel/runtime/helpers/inherits":"8mpJg","@babel/runtime/helpers/possibleConstructorReturn":"iiXLy","@babel/runtime/helpers/getPrototypeOf":"DHhBk","@babel/runtime/helpers/defineProperty":"eCMPI","./View":"8rtS4","url:../../img/icons.svg":"5XfTb","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","./previewView":"knRyY"}]},["0xcHD","jKMjS"], "jKMjS", "parcelRequire6d3a")
 
 //# sourceMappingURL=index.436439df.js.map
