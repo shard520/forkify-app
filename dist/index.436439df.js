@@ -406,18 +406,18 @@ var controlRecipes = /*#__PURE__*/ function() {
         return _regeneratorDefault.default.wrap(function _callee$(_context) {
             while(true)switch(_context.prev = _context.next){
                 case 0:
+                    _context.prev = 0;
                     id = window.location.hash.slice(1);
                     if (id) {
-                        _context.next = 3;
+                        _context.next = 4;
                         break;
                     }
                     return _context.abrupt("return");
-                case 3:
+                case 4:
                     // 1) Update results and bookmarks view to add selected class to results/bookmarks
                     _resultsViewDefault.default.update(_model.getSearchResultsPage());
                     _bookmarksViewDefault.default.update(_model.state.bookmarks); // 2} Render loading spinner
-                    _recipeViewDefault.default.renderSpinner();
-                    _context.prev = 6;
+                    _recipeViewDefault.default.renderSpinner(); // 3) Loading recipe
                     _context.next = 9;
                     return _model.loadRecipe(id);
                 case 9:
@@ -427,7 +427,7 @@ var controlRecipes = /*#__PURE__*/ function() {
                     break;
                 case 12:
                     _context.prev = 12;
-                    _context.t0 = _context["catch"](6);
+                    _context.t0 = _context["catch"](0);
                     console.error("\uD83D\uDCA5\uD83D\uDCA5 ".concat(_context.t0));
                     _recipeViewDefault.default.renderError();
                 case 16:
@@ -436,7 +436,7 @@ var controlRecipes = /*#__PURE__*/ function() {
             }
         }, _callee, null, [
             [
-                6,
+                0,
                 12
             ]
         ]);
@@ -506,7 +506,11 @@ var controlAddBookmark = function controlAddBookmark1() {
     _recipeViewDefault.default.update(_model.state.recipe); // 3) Render bookmarks
     _bookmarksViewDefault.default.render(_model.state.bookmarks);
 };
+var controlBookmarks = function controlBookmarks1() {
+    _bookmarksViewDefault.default.render(_model.state.bookmarks);
+};
 var init = function init1() {
+    _bookmarksViewDefault.default.addHandlerRender(controlBookmarks);
     _recipeViewDefault.default.addHandlerRender(controlRecipes);
     _recipeViewDefault.default.addHandlerUpdateServings(controlServings);
     _recipeViewDefault.default.addHandlerAddBookmark(controlAddBookmark);
@@ -1261,10 +1265,18 @@ var updateServings = function updateServings1(newServings) {
     });
     state.recipe.servings = newServings;
 };
+var persistBookmarks = function persistBookmarks1() {
+    try {
+        localStorage.setItem('bookmarks', JSON.stringify(state.bookmarks));
+    } catch (err) {
+        console.error(err, "localStorage disabled, can't use bookmarks");
+    }
+};
 var addBookmark = function addBookmark1(recipe) {
     // Add bookmark
     state.bookmarks.push(recipe); // Mark current recipe as bookmark
-    state.recipe.bookmarked = true;
+    state.recipe.bookmarked = true; // Update local storage with current bookmarks
+    persistBookmarks();
 };
 var deleteBookmark = function deleteBookmark1(id) {
     // Delete bookmark
@@ -1272,8 +1284,14 @@ var deleteBookmark = function deleteBookmark1(id) {
         return el.id === id;
     });
     state.bookmarks.splice(index, 1); // Mark current recipe as not bookmarked
-    state.recipe.bookmarked = false;
+    state.recipe.bookmarked = false; // Update local storage with current bookmarks
+    persistBookmarks();
 };
+var init = function init1() {
+    var storage = localStorage.getItem('bookmarks');
+    if (storage) state.bookmarks = JSON.parse(storage);
+};
+init();
 
 },{"@babel/runtime/helpers/asyncToGenerator":"5j50L","@babel/runtime/regenerator":"1L3WO","./config":"beA2m","./helpers":"9l3Yy","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}],"beA2m":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -14169,6 +14187,12 @@ var BookmarksView1 = /*#__PURE__*/ function(_View) {
         return _this;
     }
     _createClassDefault.default(BookmarksView2, [
+        {
+            key: "addHandlerRender",
+            value: function addHandlerRender(handler) {
+                window.addEventListener('load', handler);
+            }
+        },
         {
             key: "_generateMarkup",
             value: function _generateMarkup() {

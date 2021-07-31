@@ -76,12 +76,23 @@ export const updateServings = function (newServings) {
   state.recipe.servings = newServings;
 };
 
+const persistBookmarks = function () {
+  try {
+    localStorage.setItem('bookmarks', JSON.stringify(state.bookmarks));
+  } catch (err) {
+    console.error(err, "localStorage disabled, can't use bookmarks");
+  }
+};
+
 export const addBookmark = function (recipe) {
   // Add bookmark
   state.bookmarks.push(recipe);
 
   // Mark current recipe as bookmark
   state.recipe.bookmarked = true;
+
+  // Update local storage with current bookmarks
+  persistBookmarks();
 };
 
 export const deleteBookmark = function (id) {
@@ -91,4 +102,14 @@ export const deleteBookmark = function (id) {
 
   // Mark current recipe as not bookmarked
   state.recipe.bookmarked = false;
+
+  // Update local storage with current bookmarks
+  persistBookmarks();
 };
+
+const init = function () {
+  const storage = localStorage.getItem('bookmarks');
+  if (storage) state.bookmarks = JSON.parse(storage);
+};
+
+init();

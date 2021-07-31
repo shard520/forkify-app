@@ -13,18 +13,18 @@ import 'regenerator-runtime/runtime';
 // }
 
 const controlRecipes = async function () {
-  const id = window.location.hash.slice(1);
-
-  if (!id) return;
-
-  // 1) Update results and bookmarks view to add selected class to results/bookmarks
-  resultsView.update(model.getSearchResultsPage());
-  bookmarksView.update(model.state.bookmarks);
-
-  // 2} Render loading spinner
-  recipeView.renderSpinner();
-
   try {
+    const id = window.location.hash.slice(1);
+
+    if (!id) return;
+
+    // 1) Update results and bookmarks view to add selected class to results/bookmarks
+    resultsView.update(model.getSearchResultsPage());
+    bookmarksView.update(model.state.bookmarks);
+
+    // 2} Render loading spinner
+    recipeView.renderSpinner();
+
     // 3) Loading recipe
     await model.loadRecipe(id);
 
@@ -86,7 +86,12 @@ const controlAddBookmark = function () {
   bookmarksView.render(model.state.bookmarks);
 };
 
+const controlBookmarks = function () {
+  bookmarksView.render(model.state.bookmarks);
+};
+
 const init = function () {
+  bookmarksView.addHandlerRender(controlBookmarks);
   recipeView.addHandlerRender(controlRecipes);
   recipeView.addHandlerUpdateServings(controlServings);
   recipeView.addHandlerAddBookmark(controlAddBookmark);
