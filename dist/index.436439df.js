@@ -400,9 +400,7 @@ var _addRecipeView = require("./views/addRecipeView");
 var _addRecipeViewDefault = parcelHelpers.interopDefault(_addRecipeView);
 var _config = require("./config");
 var _stable = require("core-js/stable");
-var _runtime = require("regenerator-runtime/runtime"); // if (module.hot) {
-//   module.hot.accept();
-// }
+var _runtime = require("regenerator-runtime/runtime");
 var controlRecipes = /*#__PURE__*/ function() {
     var _ref = _asyncToGeneratorDefault.default(/*#__PURE__*/ _regeneratorDefault.default.mark(function _callee() {
         var id;
@@ -530,22 +528,25 @@ var controlAddRecipe = /*#__PURE__*/ function() {
                     _bookmarksViewDefault.default.render(_model.state.bookmarks); // Close form window
                     setTimeout(function() {
                         _addRecipeViewDefault.default.toggleWindow();
-                    }, _config.MODAL_CLOSE_SEC * 1000);
-                    _context3.next = 15;
+                    }, _config.MODAL_CLOSE_SEC * 1000); // Render new form after form window has closed
+                    setTimeout(function() {
+                        _addRecipeViewDefault.default.render(_model.state.recipe);
+                    }, _config.MODAL_CLOSE_SEC * 1250);
+                    _context3.next = 16;
                     break;
-                case 11:
-                    _context3.prev = 11;
+                case 12:
+                    _context3.prev = 12;
                     _context3.t0 = _context3["catch"](0);
                     console.error("\uD83D\uDCA5\uD83D\uDCA5 ".concat(_context3.t0));
                     _addRecipeViewDefault.default.renderError(_context3.t0.message);
-                case 15:
+                case 16:
                 case "end":
                     return _context3.stop();
             }
         }, _callee3, null, [
             [
                 0,
-                11
+                12
             ]
         ]);
     }));
@@ -1449,7 +1450,7 @@ parcelHelpers.export(exports, "MODAL_CLOSE_SEC", ()=>MODAL_CLOSE_SEC
 var API_URL = 'https://forkify-api.herokuapp.com/api/v2/recipes/';
 var TIMEOUT_SEC = 10;
 var RES_PER_PAGE = 10;
-var KEY = 'e2f97bf3-bce1-4f59-baa8-ee419b07fb2c';
+var KEY = 'a8749ee3-6a1e-4aba-8d8c-0cba8a92c546';
 var MODAL_CLOSE_SEC = 2.5;
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}],"JacNc":[function(require,module,exports) {
@@ -2644,8 +2645,6 @@ var _view = require("./View");
 var _viewDefault = parcelHelpers.interopDefault(_view);
 var _previewView = require("./previewView");
 var _previewViewDefault = parcelHelpers.interopDefault(_previewView);
-var _iconsSvg = require("url:../../img/icons.svg");
-var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
 function _createSuper(Derived) {
     var hasNativeReflectConstruct = _isNativeReflectConstruct();
     return function _createSuperInternal() {
@@ -2698,7 +2697,7 @@ var ResultsView1 = /*#__PURE__*/ function(_View) {
 }(_viewDefault.default);
 exports.default = new ResultsView1();
 
-},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@babel/runtime/helpers/createClass":"eFNXV","@babel/runtime/helpers/assertThisInitialized":"k3YcS","@babel/runtime/helpers/inherits":"8mpJg","@babel/runtime/helpers/possibleConstructorReturn":"iiXLy","@babel/runtime/helpers/getPrototypeOf":"DHhBk","@babel/runtime/helpers/defineProperty":"eCMPI","./View":"8rtS4","url:../../img/icons.svg":"5XfTb","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","./previewView":"knRyY"}],"knRyY":[function(require,module,exports) {
+},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@babel/runtime/helpers/createClass":"eFNXV","@babel/runtime/helpers/assertThisInitialized":"k3YcS","@babel/runtime/helpers/inherits":"8mpJg","@babel/runtime/helpers/possibleConstructorReturn":"iiXLy","@babel/runtime/helpers/getPrototypeOf":"DHhBk","@babel/runtime/helpers/defineProperty":"eCMPI","./View":"8rtS4","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","./previewView":"knRyY"}],"knRyY":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _classCallCheck = require("@babel/runtime/helpers/classCallCheck");
@@ -14375,8 +14374,6 @@ var _view = require("./View");
 var _viewDefault = parcelHelpers.interopDefault(_view);
 var _previewView = require("./previewView");
 var _previewViewDefault = parcelHelpers.interopDefault(_previewView);
-var _iconsSvg = require("url:../../img/icons.svg");
-var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
 function _createSuper(Derived) {
     var hasNativeReflectConstruct = _isNativeReflectConstruct();
     return function _createSuperInternal() {
@@ -14435,7 +14432,7 @@ var BookmarksView1 = /*#__PURE__*/ function(_View) {
 }(_viewDefault.default);
 exports.default = new BookmarksView1();
 
-},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@babel/runtime/helpers/createClass":"eFNXV","@babel/runtime/helpers/assertThisInitialized":"k3YcS","@babel/runtime/helpers/inherits":"8mpJg","@babel/runtime/helpers/possibleConstructorReturn":"iiXLy","@babel/runtime/helpers/getPrototypeOf":"DHhBk","@babel/runtime/helpers/defineProperty":"eCMPI","./View":"8rtS4","url:../../img/icons.svg":"5XfTb","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","./previewView":"knRyY"}],"4NyJt":[function(require,module,exports) {
+},{"@babel/runtime/helpers/classCallCheck":"fIqcI","@babel/runtime/helpers/createClass":"eFNXV","@babel/runtime/helpers/assertThisInitialized":"k3YcS","@babel/runtime/helpers/inherits":"8mpJg","@babel/runtime/helpers/possibleConstructorReturn":"iiXLy","@babel/runtime/helpers/getPrototypeOf":"DHhBk","@babel/runtime/helpers/defineProperty":"eCMPI","./View":"8rtS4","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","./previewView":"knRyY"}],"4NyJt":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _toConsumableArray = require("@babel/runtime/helpers/toConsumableArray");
@@ -14533,6 +14530,7 @@ var AddRecipeView1 = /*#__PURE__*/ function(_View) {
         {
             key: "_generateMarkup",
             value: function _generateMarkup() {
+                return "\n      <form class=\"upload\">\n        <div class=\"upload__column\">\n          <h3 class=\"upload__heading\">Recipe data</h3>\n          <label>Title <span class=\"upload__required\">*</span></label>\n          <input required name=\"title\" type=\"text\" />\n          <label>URL <span class=\"upload__required\">*</span></label>\n          <input required name=\"sourceUrl\" type=\"text\" />\n          <label>Image URL <span class=\"upload__required\">*</span></label>\n          <input required name=\"image\" type=\"text\" />\n          <label>Publisher <span class=\"upload__required\">*</span></label>\n          <input required name=\"publisher\" type=\"text\" />\n          <label>Prep time <span class=\"upload__required\">*</span></label>\n          <input required name=\"cookingTime\" type=\"number\" />\n          <label>Servings <span class=\"upload__required\">*</span></label>\n          <input required name=\"servings\" type=\"number\" />\n        </div>\n\n        <div class=\"upload__column\">\n          <h3 class=\"upload__heading\">Ingredients</h3>\n          <label>Ingredient 1 <span class=\"upload__required\">*</span></label>\n          <input\n            type=\"text\"\n            required\n            name=\"ingredient-1\"\n            placeholder=\"Format: 'Quantity,Unit,Description'\"\n          />\n          <label>Ingredient 2</label>\n          <input\n            type=\"text\"\n            name=\"ingredient-2\"\n            placeholder=\"Format: 'Quantity,Unit,Description'\"\n          />\n          <label>Ingredient 3</label>\n          <input\n            type=\"text\"\n            name=\"ingredient-3\"\n            placeholder=\"Format: 'Quantity,Unit,Description'\"\n          />\n          <label>Ingredient 4</label>\n          <input\n            type=\"text\"\n            name=\"ingredient-4\"\n            placeholder=\"Format: 'Quantity,Unit,Description'\"\n          />\n          <label>Ingredient 5</label>\n          <input\n            type=\"text\"\n            name=\"ingredient-5\"\n            placeholder=\"Format: 'Quantity,Unit,Description'\"\n          />\n          <label>Ingredient 6</label>\n          <input\n            type=\"text\"\n            name=\"ingredient-6\"\n            placeholder=\"Format: 'Quantity,Unit,Description'\"\n          />\n        </div>\n\n        <button class=\"btn upload__btn\">\n          <svg>\n            <use href=\"".concat(_iconsSvgDefault.default, "#icon-upload-cloud\"></use>\n          </svg>\n          <span>Upload</span>\n        </button>\n      </form>\n    ");
             }
         }
     ]);
@@ -14540,7 +14538,7 @@ var AddRecipeView1 = /*#__PURE__*/ function(_View) {
 }(_viewDefault.default);
 exports.default = new AddRecipeView1();
 
-},{"@babel/runtime/helpers/toConsumableArray":"8RnnL","@babel/runtime/helpers/classCallCheck":"fIqcI","@babel/runtime/helpers/createClass":"eFNXV","@babel/runtime/helpers/assertThisInitialized":"k3YcS","@babel/runtime/helpers/inherits":"8mpJg","@babel/runtime/helpers/possibleConstructorReturn":"iiXLy","@babel/runtime/helpers/getPrototypeOf":"DHhBk","@babel/runtime/helpers/defineProperty":"eCMPI","./View":"8rtS4","url:../../img/icons.svg":"5XfTb","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc"}],"8RnnL":[function(require,module,exports) {
+},{"@babel/runtime/helpers/toConsumableArray":"8RnnL","@babel/runtime/helpers/classCallCheck":"fIqcI","@babel/runtime/helpers/createClass":"eFNXV","@babel/runtime/helpers/assertThisInitialized":"k3YcS","@babel/runtime/helpers/inherits":"8mpJg","@babel/runtime/helpers/possibleConstructorReturn":"iiXLy","@babel/runtime/helpers/getPrototypeOf":"DHhBk","@babel/runtime/helpers/defineProperty":"eCMPI","./View":"8rtS4","@parcel/transformer-js/src/esmodule-helpers.js":"JacNc","url:../../img/icons.svg":"5XfTb"}],"8RnnL":[function(require,module,exports) {
 var arrayWithoutHoles = require("./arrayWithoutHoles.js");
 var iterableToArray = require("./iterableToArray.js");
 var unsupportedIterableToArray = require("./unsupportedIterableToArray.js");

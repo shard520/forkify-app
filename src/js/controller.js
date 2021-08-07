@@ -10,10 +10,6 @@ import { MODAL_CLOSE_SEC } from './config';
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
-// if (module.hot) {
-//   module.hot.accept();
-// }
-
 const controlRecipes = async function () {
   try {
     const id = window.location.hash.slice(1);
@@ -116,6 +112,11 @@ const controlAddRecipe = async function (newRecipe) {
     setTimeout(function () {
       addRecipeView.toggleWindow();
     }, MODAL_CLOSE_SEC * 1000);
+
+    // Render new form after form window has closed
+    setTimeout(function () {
+      addRecipeView.render(model.state.recipe);
+    }, MODAL_CLOSE_SEC * 1.25 * 1000);
   } catch (err) {
     console.error(`💥💥 ${err}`);
     addRecipeView.renderError(err.message);

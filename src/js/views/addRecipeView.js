@@ -1,5 +1,4 @@
 import View from './View';
-
 import icons from 'url:../../img/icons.svg';
 
 class AddRecipeView extends View {
@@ -41,7 +40,75 @@ class AddRecipeView extends View {
     });
   }
 
-  _generateMarkup() {}
+  _generateMarkup() {
+    return `
+      <form class="upload">
+        <div class="upload__column">
+          <h3 class="upload__heading">Recipe data</h3>
+          <label>Title <span class="upload__required">*</span></label>
+          <input required name="title" type="text" />
+          <label>URL <span class="upload__required">*</span></label>
+          <input required name="sourceUrl" type="text" />
+          <label>Image URL <span class="upload__required">*</span></label>
+          <input required name="image" type="text" />
+          <label>Publisher <span class="upload__required">*</span></label>
+          <input required name="publisher" type="text" />
+          <label>Prep time <span class="upload__required">*</span></label>
+          <input required name="cookingTime" type="number" />
+          <label>Servings <span class="upload__required">*</span></label>
+          <input required name="servings" type="number" />
+        </div>
+
+        <div class="upload__column">
+          <h3 class="upload__heading">Ingredients</h3>
+          <label>Ingredient 1 <span class="upload__required">*</span></label>
+          <input
+            type="text"
+            required
+            name="ingredient-1"
+            placeholder="Format: 'Quantity,Unit,Description'"
+          />
+          <label>Ingredient 2</label>
+          <input
+            type="text"
+            name="ingredient-2"
+            placeholder="Format: 'Quantity,Unit,Description'"
+          />
+          <label>Ingredient 3</label>
+          <input
+            type="text"
+            name="ingredient-3"
+            placeholder="Format: 'Quantity,Unit,Description'"
+          />
+          <label>Ingredient 4</label>
+          <input
+            type="text"
+            name="ingredient-4"
+            placeholder="Format: 'Quantity,Unit,Description'"
+          />
+          <label>Ingredient 5</label>
+          <input
+            type="text"
+            name="ingredient-5"
+            placeholder="Format: 'Quantity,Unit,Description'"
+          />
+          <label>Ingredient 6</label>
+          <input
+            type="text"
+            name="ingredient-6"
+            placeholder="Format: 'Quantity,Unit,Description'"
+          />
+        </div>
+
+        <button class="btn upload__btn">
+          <svg>
+            <use href="${icons}#icon-upload-cloud"></use>
+          </svg>
+          <span>Upload</span>
+        </button>
+      </form>
+    `;
+  }
 }
 
 export default new AddRecipeView();

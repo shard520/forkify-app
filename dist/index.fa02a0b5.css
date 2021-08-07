@@ -696,6 +696,9 @@ body {
   justify-self: center;
   margin-top: 1rem;
 }
+.upload__required {
+  color: #f38e82;
+}
 .upload__heading {
   font-size: 2.25rem;
   font-weight: 700;
