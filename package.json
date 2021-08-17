@@ -2,6 +2,7 @@
   "name": "forkify-app",
   "version": "1.0.0",
   "description": "Recipe Library",
+  "default": "index.html",
   "scripts": {
     "start": "parcel serve index.html",
     "build": "parcel build index.html",
